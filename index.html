@@ -1,145 +1,218 @@
-<!DOCTYPE html><html lang="en">
+<!DOCTYPE html>
+<html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Bluepool Forex Traders Full 3000-line Prototype</title>
-<link rel="stylesheet" href="styles.css">
-<script src="https://cdn.jsdelivr.net/npm/three@0.153.0/build/three.min.js"></script>
-<style>
-/* Core Styling for Complete Prototype */
-body { margin:0; font-family: Arial, sans-serif; background:#0a1f3a; color:#fff; }
-.header, .footer { display:flex; justify-content:space-between; align-items:center; padding:12px; background:rgba(0,0,0,0.7); }
-.dashboard { display:grid; grid-template-columns: 2fr 3fr 2fr; gap:12px; padding:12px; }
-.panel { background: rgba(255,255,255,0.05); padding:12px; border-radius:12px; overflow:auto; max-height:700px; }
-button { cursor:pointer; margin:3px; padding:6px 12px; border:none; border-radius:6px; background:#00d8ff; color:#000; font-weight:bold; }
-.buy-btn { background:#00ff00; }
-.sell-btn { background:#ff0000; }
-.patterns-grid { display:grid; grid-template-columns: repeat(4,1fr); gap:6px; margin-top:6px; }
-.pattern-card { background: rgba(255,255,255,0.1); border-radius:6px; padding:6px; text-align:center; }
-.login-panel input { margin:5px 0; padding:8px; border-radius:6px; border:none; width:95%; }
-</style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Blue Pool FX | Sovereign Command Center</title>
+    <style>
+        :root {
+            --primary: #00d4ff; --bg: #010409; --card: rgba(13, 17, 23, 0.98);
+            --border: #30363d; --text: #f0f6fc; --accent: #1f6feb;
+            --whatsapp: #23d366; --danger: #f85149; --gold: #ffd700;
+        }
+
+        body {
+            background: var(--bg); color: var(--text);
+            font-family: 'Inter', -apple-system, sans-serif;
+            margin: 0; overflow-x: hidden; line-height: 1.6;
+        }
+
+        .grid-bg {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background-image: linear-gradient(var(--border) 1px, transparent 1px), 
+                              linear-gradient(90deg, var(--border) 1px, transparent 1px);
+            background-size: 40px 40px; z-index: -1; opacity: 0.1;
+        }
+
+        /* LIVE TICKER */
+        .ticker-wrap {
+            width: 100%; overflow: hidden; background: #0d1117;
+            border-bottom: 1px solid var(--border); padding: 5px 0;
+            white-space: nowrap; font-size: 0.75rem; color: var(--primary);
+        }
+        .ticker { display: inline-block; animation: ticker 30s linear infinite; }
+        @keyframes ticker { 0% { transform: translateX(100%); } 100% { transform: translateX(-100%); } }
+
+        nav {
+            background: var(--card); border-bottom: 2px solid var(--primary);
+            padding: 1rem 5%; display: flex; justify-content: space-between;
+            align-items: center; position: sticky; top: 0; z-index: 1000;
+            backdrop-filter: blur(10px);
+        }
+
+        .logo { font-size: 1.5rem; font-weight: 900; color: var(--primary); letter-spacing: 2px; }
+        .nav-links button {
+            background: transparent; border: 1px solid var(--primary);
+            color: var(--primary); padding: 8px 12px; border-radius: 6px;
+            cursor: pointer; font-size: 0.8rem; margin-left: 5px; font-weight: bold;
+        }
+
+        .page { display: none; padding: 20px 5%; max-width: 1200px; margin: auto; animation: fadeIn 0.4s ease; }
+        .active { display: block; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; } }
+
+        .glass-card {
+            background: var(--card); border: 1px solid var(--border);
+            border-radius: 12px; padding: 20px; margin-bottom: 20px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+        }
+
+        /* CHART & AI CHAT */
+        .chart-container { width: 100%; height: 450px; border-radius: 8px; overflow: hidden; border: 1px solid var(--border); margin-bottom: 20px; }
+        #ai-chat-window { height: 250px; overflow-y: auto; background: #070a0f; padding: 15px; border-radius: 10px; border: 1px solid var(--border); margin-bottom: 15px; font-size: 0.9rem; }
+        .ai-msg { color: var(--primary); margin-bottom: 10px; border-left: 3px solid var(--primary); padding-left: 10px; }
+        .user-msg { color: #8b949e; text-align: right; margin-bottom: 10px; }
+
+        input, select, textarea { width: 100%; padding: 12px; margin: 8px 0; background: #0d1117; border: 1px solid var(--border); color: white; border-radius: 6px; box-sizing: border-box; }
+        .btn-action { width: 100%; padding: 14px; background: var(--primary); color: #010409; border: none; border-radius: 6px; font-weight: 800; cursor: pointer; text-transform: uppercase; }
+
+        .comm-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+        .comm-link { padding: 12px; border-radius: 6px; text-decoration: none; color: white; font-weight: bold; text-align: center; }
+
+        .hidden { display: none !important; }
+    </style>
 </head>
 <body>
-<canvas id="background-3d"></canvas>
-<header class="header">
-<div class="logo">Bluepool Fx Traders</div>
-<nav>
-<button>Home</button>
-<button>Dashboard</button>
-<button>Education</button>
-<button>Community</button>
-<button>Backtesting</button>
-<button>Premium</button>
-</nav>
-<div class="user-panel">
-<span>Profile</span>
-<span>Notifications</span>
-<span>Session: Asian</span>
-</div>
-</header>
-<main class="dashboard">
-<!-- Secure Login / Registration Panel -->
-<section class="login-panel panel">
-<h2>User Login / Registration</h2>
-<div><label>Email:</label><input type="email" placeholder="Enter Email"></div>
-<div><label>Password:</label><input type="password" placeholder="Enter Password"></div>
-<div><label>Confirm Password:</label><input type="password" placeholder="Confirm Password"></div>
-<div><label>2FA Code:</label><input type="text" placeholder="Enter 2FA Code"></div>
-<button>Login</button>
-<button>Register</button>
-</section><!-- Trading Panel --><section class="trading-panel panel">
-<h2>Trading Panel</h2>
-<div><label>Order Type:</label><select><option>Market</option><option>Limit</option><option>Stop</option></select></div>
-<div><label>Buy/Sell:</label><button class="buy-btn">Buy</button><button class="sell-btn">Sell</button></div>
-<div><label>Stop Loss:</label><input type="text" placeholder="Stop Loss Price"></div>
-<div><label>Take Profit:</label><input type="text" placeholder="Take Profit Price"></div>
-<div><label>Position Size:</label><input type="text" placeholder="Size"></div>
-<div>P/L: <span id="pl-display">0.00</span></div>
-<div><label>Broker Market Links:</label>
-<a href="#">OANDA Demo</a> | <a href="#">FXCM Demo</a> | <a href="#">Exness</a>
-</div>
-</section><!-- Charts Panel --><section class="chart-panel panel">
-<h2>Charts & Indicators</h2>
-<div id="chart-container"><p>Interactive TradingView chart placeholder with sample candlesticks, indicators, and session highlights</p></div>
-<div><label>Indicators:</label><select multiple><option>RSI</option><option>MACD</option><option>Bollinger Bands</option><option>Fibonacci</option><option>Moving Average</option></select></div>
-<div><label>Timeframe:</label><select><option>1M</option><option>5M</option><option>15M</option><option>1H</option><option>4H</option><option>1D</option></select></div>
-<div><label>Currency Pair:</label><select><option>EUR/USD</option><option>GBP/USD</option><option>USD/JPY</option><option>AUD/USD</option><option>USD/CHF</option></select></div>
-<div>Sample Open Trades Table Placeholder with 10 example trades including P/L, open price, current price, session, leverage</div>
-</section><!-- AI Assistant Panel --><section class="ai-panel panel">
-<h2>BlueBot AI Assistant</h2>
-<div class="chat-box">
-<div class="messages" id="ai-messages">
-<div class="message">Hello! I am BlueBot. I can guide you through Forex trading, session insights, and pattern selections.</div>
-<div class="message">Ask me about risk management, trading strategies, or backtesting simulations.</div>
-<div class="message">Sample Response: Today's London session shows high volatility in EUR/USD. Consider lower leverage for beginners.</div>
-</div>
-<input type="text" id="ai-input" placeholder="Ask BlueBot a question"><button id="send-ai">Send</button>
-</div>
-</section><!-- Backtesting Panel --><section class="backtesting-panel panel">
-<h2>Backtesting</h2>
-<div><label>Currency Pair:</label><select><option>EUR/USD</option><option>GBP/USD</option><option>USD/JPY</option></select></div>
-<div><label>Start Date:</label><input type="date"><label>End Date:</label><input type="date"></div>
-<div><button>Run Backtest</button></div>
-<div id="backtest-results">
-<p>Results: P/L, Win Rate, Max Drawdown</p>
-<p>Sample Chart with simulated trades overlay placeholder</p>
-</div>
-</section><!-- Education Panel --><section class="education-panel panel">
-<h2>Education</h2>
-<div>
-<h3>Daniel Ahikyirize Beginner Video</h3>
-<iframe width="100%" height="200" src="https://www.youtube.com/embed/VEzVPmyLLxs" frameborder="0" allowfullscreen></iframe>
-<p>Step-by-step beginner guidance on Forex basics, session identification, and chart reading.</p>
-</div>
-<div>
-<h3>BabyPips Lessons</h3>
-<iframe width="100%" height="200" src="https://www.babypips.com/learn/forex" frameborder="0"></iframe>
-<p>Structured lessons from beginner to advanced levels including risk management and trading psychology.</p>
-</div>
-<div>
-<h3>Sample Notes & Tips</h3>
-<p>Trading requires discipline. Always backtest strategies before applying to real accounts. Use proper risk management and position sizing.</p>
-</div>
-</section><!-- Community Panel --><section class="community-panel panel">
-<h2>Community</h2>
-<div>
-<p>Forum Feed / Chat Board Placeholder</p>
-<a href="https://t.me/yourgroup" target="_blank">Telegram Group</a>
-<a href="https://wa.me/yourgroup" target="_blank">WhatsApp Group</a>
-<p>Example Discussions: Best trading hours, top-performing currency pairs, pattern recognition strategies.</p>
-</div>
-</section><!-- Patterns Panel --><section class="patterns-panel panel">
-<h2>Patterns</h2>
-<div class="toggle-buttons">
-<button onclick="showPatterns('chat')">Chat Patterns</button>
-<button onclick="showPatterns('kandrosik')">Kandrosik Patterns</button>
-</div>
-<div class="patterns-grid" id="patterns-grid"></div>
-</section></main>
-<footer class="footer">
-<div>About | FAQ | Terms | Contact</div>
-<div>Social: Telegram | WhatsApp | YouTube</div>
-<button class="premium-btn">Join Premium</button>
-</footer><script>
-// Populate Patterns
-const chatPatterns = Array.from({length:100}, (_,i)=>({name:'Chat Pattern '+(i+1),img:'/images/chat'+(i+1)+'.png'}));
-const kandrosikPatterns = Array.from({length:100}, (_,i)=>({name:'Kandrosik '+(i+1),img:'/images/kandrosik'+(i+1)+'.png'}));
-const patternsGrid = document.getElementById('patterns-grid');
-function showPatterns(type){patternsGrid.innerHTML='';const list=type==='chat'?chatPatterns:kandrosikPatterns;list.forEach(p=>{const card=document.createElement('div');card.className='pattern-card';card.innerHTML=`<img src='${p.img}' alt='${p.name}'><span>${p.name}</span>`;patternsGrid.appendChild(card);});}
-showPatterns('chat');
-</script><script>
-// Three.js 3D background placeholder
-const scene = new THREE.Scene();
-const camera = new THREE.PerspectiveCamera(75,window.innerWidth/window.innerHeight,0.1,1000);
-const renderer = new THREE.WebGLRenderer({canvas:document.getElementById('background-3d'),alpha:true});
-renderer.setSize(window.innerWidth,window.innerHeight);
-document.body.appendChild(renderer.domElement);
-const geometry = new THREE.BoxGeometry();
-const material = new THREE.MeshBasicMaterial({color:0x00d8ff,wireframe:true});
-const cube = new THREE.Mesh(geometry,material);
-scene.add(cube);
-camera.position.z=5;
-function animate(){requestAnimationFrame(animate);cube.rotation.x+=0.01;cube.rotation.y+=0.01;renderer.render(scene,camera);}
-animate();
-</script></body>
+
+    <div class="grid-bg"></div>
+    <div class="ticker-wrap"><div class="ticker">XAUUSD +1.24% • NAS100 +0.85% • US30 -0.12% • EURUSD +0.04% • GBPJPY +0.45% • BLUE POOL AI STATUS: OPTIMIZED</div></div>
+
+    <nav id="navbar" class="hidden">
+        <div class="logo">BLEZO FX</div>
+        <div class="nav-links">
+            <button onclick="showPage('course-page')">Lessons</button>
+            <button onclick="showPage('ai-page')">AI Brain</button>
+            <button onclick="showPage('terminal-page')">Terminal</button>
+            <button onclick="logout()" style="border-color: var(--danger); color: var(--danger);">Exit</button>
+        </div>
+    </nav>
+
+    <div id="auth-page" class="page active">
+        <div class="glass-card" style="max-width:380px; margin:100px auto; text-align:center;">
+            <h1 style="color:var(--primary);">IDENTITY SECURE</h1>
+            <input type="text" id="ceo-id" placeholder="CEO Identity">
+            <button class="btn-action" onclick="saveSession()">Enter Command Center</button>
+        </div>
+    </div>
+
+    <div id="terminal-page" class="page">
+        <h1>Institutional Terminal</h1>
+        <div class="chart-container">
+            <iframe src="https://s.tradingview.com/widgetembed/?frameElementId=tradingview_762ae&symbol=FX%3AXAUUSD&interval=15&hidesidetoolbar=1&symboledit=1&saveimage=1&toolbarbg=f1f3f6&studies=%5B%5D&theme=dark&style=1&timezone=Etc%2FUTC&studies_overrides=%7B%7D&overrides=%7B%7D&enabled_features=%5B%5D&disabled_features=%5B%5D&locale=en&utm_source=localhost&utm_medium=widget&utm_campaign=chart&utm_term=FX%3AXAUUSD" width="100%" height="100%" frameborder="0" allowtransparency="true" scrolling="no" allowfullscreen></iframe>
+        </div>
+
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; margin-bottom: 20px;">
+            <div class="glass-card" style="text-align: center; border-top: 4px solid var(--primary);"><div>Net Profit</div><div style="font-size: 2rem; font-weight: 800;" id="p-val">$0.00</div></div>
+            <div class="glass-card" style="text-align: center; border-top: 4px solid var(--gold);"><div>Win Rate</div><div style="font-size: 2rem; font-weight: 800;" id="w-val">0%</div></div>
+        </div>
+
+        <div class="glass-card">
+            <h3>Log Position</h3>
+            <div style="display: flex; gap: 10px;">
+                <input type="text" id="t-pair" placeholder="Asset" style="flex:2">
+                <input type="number" id="t-amt" placeholder="P/L" style="flex:1">
+                <button class="btn-action" onclick="logTrade()" style="flex:1">Record</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="ai-page" class="page">
+        <h1>Global AI analyst</h1>
+        <div class="glass-card">
+            <h3>Comms Hub</h3>
+            <div class="comm-grid">
+                <a href="https://wa.me/254000000000" class="comm-link" style="background: var(--whatsapp);" target="_blank">WhatsApp</a>
+                <a href="tel:+254000000000" class="comm-link" style="background: var(--primary); color:#000;">Call CEO</a>
+            </div>
+        </div>
+
+        <div class="glass-card">
+            <h3>Institutional Brain</h3>
+            <div id="ai-chat-window"><div class="ai-msg">Awaiting data logs for SMC analysis...</div></div>
+            <textarea id="ai-input" rows="2" placeholder="Analyze: XAUUSD swept SSL and broke structure..."></textarea>
+            
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+                <input type="number" id="calc-bal" value="1000" placeholder="Balance">
+                <input type="number" id="calc-sl" placeholder="SL Pips">
+                <select id="calc-asset"><option value="10">Forex</option><option value="1">Gold</option><option value="100">Indices</option></select>
+                <button class="btn-action" onclick="runAI()">Analyze</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="course-page" class="page">
+        <h1>Edge Floor Curriculum</h1>
+        <div class="glass-card">
+            <h3>Module 1: Liquidity & Sweeps</h3>
+            <p>Institutional moves require fuel. That fuel is retail stop losses. Wait for the sweep before the entry.</p>
+            <h3>Module 2: The Change of Character</h3>
+            <p>CHoCH is our confirmation. It shows the Big Money has successfully flipped the order flow.</p>
+        </div>
+    </div>
+
+    <script>
+        function checkSession() {
+            const user = localStorage.getItem('bp_v4_session');
+            if (user) {
+                document.getElementById('navbar').classList.remove('hidden');
+                showPage('terminal-page');
+                refreshData();
+            }
+        }
+
+        function saveSession() {
+            const name = document.getElementById('ceo-id').value;
+            if(!name) return;
+            localStorage.setItem('bp_v4_session', name);
+            location.reload();
+        }
+
+        function logout() { localStorage.removeItem('bp_v4_session'); location.reload(); }
+
+        function showPage(id) {
+            document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+            document.getElementById(id).classList.add('active');
+        }
+
+        function runAI() {
+            const chat = document.getElementById('ai-chat-window');
+            const input = document.getElementById('ai-input');
+            const bal = parseFloat(document.getElementById('calc-bal').value);
+            const sl = parseFloat(document.getElementById('calc-sl').value);
+            const ast = parseFloat(document.getElementById('calc-asset').value);
+
+            if(input.value) chat.innerHTML += `<div class="user-msg">${input.value}</div>`;
+            
+            setTimeout(() => {
+                let r = "--- REPORT ---\n";
+                if(sl > 0) r += `🛡️ LOT SIZE: Use ${( (bal * 0.01) / (sl * ast) ).toFixed(2)} for 1% risk.\n`;
+                r += "🔍 SMC VERDICT: Context identified. Wait for FVG mitigation.";
+                chat.innerHTML += `<div class="ai-msg">${r}</div>`;
+                chat.scrollTop = chat.scrollHeight;
+                input.value = "";
+            }, 800);
+        }
+
+        function logTrade() {
+            const p = document.getElementById('t-pair').value;
+            const a = parseFloat(document.getElementById('t-amt').value);
+            if(!p || isNaN(a)) return;
+            let trades = JSON.parse(localStorage.getItem('bp_v4_trades') || "[]");
+            trades.push({p, a});
+            localStorage.setItem('bp_v4_trades', JSON.stringify(trades));
+            refreshData();
+        }
+
+        function refreshData() {
+            const t = JSON.parse(localStorage.getItem('bp_v4_trades') || "[]");
+            let p = 0, w = 0;
+            t.forEach(i => { p += i.a; if(i.a > 0) w++; });
+            document.getElementById('p-val').innerText = "$" + p.toFixed(2);
+            document.getElementById('w-val').innerText = t.length > 0 ? Math.round((w/t.length)*100) + "%" : "0%";
+        }
+
+        window.onload = checkSession;
+    </script>
+</body>
 </html>
+
