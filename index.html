@@ -3,222 +3,243 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>BLEZOFX | CEO TERMINAL</title>
-    <link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&display=swap" rel="stylesheet">
+    <title>Blue Pool Forex Traders | CEO Terminal</title>
     <style>
-        :root { --cyan: #00d4ff; --bg: #010103; --glass: rgba(0, 212, 255, 0.06); --pink: #ff0055; }
-        body, html { margin: 0; padding: 0; width: 100%; height: 100%; background: var(--bg); color: white; font-family: 'Share Tech Mono', monospace; overflow: hidden; }
-
-        /* VIDEO SCANLINE EFFECT (IMPORTANT DESIGN PART) */
-        body::after {
-            content: " "; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.2) 50%), 
-                        linear-gradient(90deg, rgba(255, 0, 0, 0.04), rgba(0, 255, 0, 0.01), rgba(0, 0, 255, 0.04));
-            background-size: 100% 3px, 3px 100%; z-index: 1000; pointer-events: none;
+        :root {
+            --primary: #00d4ff;
+            --bg: #010409;
+            --card: rgba(13, 17, 23, 0.9);
+            --border: #30363d;
+            --text: #e6edf3;
+            --accent: #1f6feb;
         }
 
-        #bg-canvas { position: fixed; top: 0; left: 0; z-index: 1; }
-
-        .hud {
-            position: relative; z-index: 10; height: 100vh;
-            display: grid; grid-template-columns: 330px 1fr 330px;
-            grid-template-rows: 75px 1fr 100px; /* Adjusted for ticker */
-            gap: 15px; padding: 20px; box-sizing: border-box; pointer-events: none;
+        body {
+            background-color: var(--bg);
+            color: var(--text);
+            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+            margin: 0;
+            overflow-x: hidden;
+            line-height: 1.6;
         }
 
-        .panel { 
-            background: var(--glass); border: 1px solid rgba(0, 212, 255, 0.2); 
-            backdrop-filter: blur(25px); padding: 18px; pointer-events: auto;
-            box-shadow: 0 0 40px rgba(0,0,0,0.8);
+        /* --- THE VIDEO AESTHETIC (Cyber Grid) --- */
+        .grid-overlay {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background-image: linear-gradient(var(--border) 1px, transparent 1px), linear-gradient(90deg, var(--border) 1px, transparent 1px);
+            background-size: 50px 50px;
+            z-index: -1;
+            opacity: 0.1;
         }
 
-        .header { grid-column: 1 / span 3; display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid var(--cyan); }
-        .logo { font-size: 24px; letter-spacing: 5px; color: var(--cyan); text-shadow: 0 0 15px var(--cyan); }
+        /* --- NAVIGATION --- */
+        nav {
+            background: var(--card);
+            border-bottom: 1px solid var(--border);
+            padding: 15px 5%;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: sticky;
+            top: 0; z-index: 100;
+            backdrop-filter: blur(10px);
+        }
 
-        /* STATS */
-        .stat-card { border-left: 3px solid var(--cyan); padding-left: 12px; margin-bottom: 12px; }
-        .stat-label { font-size: 10px; opacity: 0.6; text-transform: uppercase; }
-        .stat-val { font-size: 24px; color: var(--cyan); }
-
-        /* CENTER TERMINAL */
-        .terminal { grid-column: 2; grid-row: 2; display: flex; flex-direction: column; }
-        #tv-mount { flex-grow: 1; border: 1px solid rgba(255,255,255,0.1); }
-
-        /* LOGGING */
-        .input-field { width: 100%; background: rgba(0,0,0,0.7); border: 1px solid var(--cyan); color: white; padding: 10px; margin-bottom: 8px; font-family: inherit; font-size: 12px; box-sizing: border-box; }
-        .btn-action { width: 100%; background: transparent; border: 1px solid var(--cyan); color: var(--cyan); padding: 12px; cursor: pointer; transition: 0.3s; font-weight: bold; }
-        .btn-action:hover { background: var(--cyan); color: black; box-shadow: 0 0 20px var(--cyan); }
-
-        /* NEWS TICKER FOOTER */
-        .footer { grid-column: 1 / span 3; display: flex; flex-direction: column; gap: 10px; }
-        .ticker-container { width: 100%; height: 35px; overflow: hidden; background: rgba(0,0,0,0.5); border-top: 1px solid rgba(0,212,255,0.1); display: flex; align-items: center; }
+        .logo { font-size: 1.5rem; font-weight: 800; color: var(--primary); text-transform: uppercase; letter-spacing: 2px; }
         
-        .footer-info { display: flex; justify-content: space-between; align-items: center; font-size: 11px; width: 100%; }
+        .nav-btns button {
+            background: transparent;
+            border: 1px solid var(--primary);
+            color: var(--primary);
+            padding: 8px 15px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: bold;
+            margin-left: 10px;
+        }
+
+        /* --- CONTAINERS --- */
+        .page { display: none; padding: 40px 5%; max-width: 1200px; margin: auto; animation: slideUp 0.4s ease; }
+        .active { display: block; }
+
+        @keyframes slideUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+
+        .glass-card {
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: 15px;
+            padding: 30px;
+            margin-bottom: 20px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+        }
+
+        /* --- FORMS --- */
+        .auth-form { max-width: 400px; margin: 100px auto; text-align: center; }
+        input {
+            width: 100%; padding: 12px; margin: 10px 0;
+            background: #0d1117; border: 1px solid var(--border);
+            color: white; border-radius: 6px; box-sizing: border-box;
+        }
+        input:focus { border-color: var(--primary); outline: none; }
+
+        .btn-action {
+            width: 100%; padding: 14px; background: var(--primary);
+            color: #010409; border: none; border-radius: 6px;
+            font-weight: 800; cursor: pointer; text-transform: uppercase;
+        }
+
+        /* --- DASHBOARD METRICS --- */
+        .stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 20px; }
+        .stat-box { background: #161b22; padding: 20px; border-radius: 10px; border-left: 4px solid var(--primary); text-align: center; }
+        .stat-val { font-size: 2rem; font-weight: bold; color: var(--primary); }
+
+        /* --- COURSE CONTENT --- */
+        .course-section { margin-bottom: 40px; border-bottom: 1px solid var(--border); padding-bottom: 20px; }
+        .course-section h2 { color: var(--primary); text-transform: uppercase; }
+        .course-section ul { list-style: none; padding: 0; }
+        .course-section li { margin: 10px 0; padding-left: 20px; border-left: 2px solid var(--accent); }
+
     </style>
 </head>
 <body>
 
-    <canvas id="bg-canvas"></canvas>
+    <div class="grid-overlay"></div>
 
-    <div class="hud">
-        <header class="panel header">
-            <div class="logo">BLEZOFX_CORP // CEO_ACCESS</div>
-            <div style="text-align: right;">
-                <div id="clock" style="color: var(--cyan); text-shadow: 0 0 10px var(--cyan);">00:00:00</div>
-                <div style="font-size: 10px; opacity: 0.6;">NETWORK: SECURE // VPN: ON</div>
-            </div>
-        </header>
+    <nav>
+        <div class="logo">BLUE POOL FX</div>
+        <div class="nav-btns" id="nav-links">
+            <button onclick="showPage('course-page')">Lessons</button>
+            <button onclick="showPage('dashboard-page')">Dashboard</button>
+            <button onclick="logout()" style="border-color: #f85149; color: #f85149;">Logout</button>
+        </div>
+    </nav>
 
-        <aside class="panel">
-            <div style="font-size: 12px; color: var(--cyan); margin-bottom: 15px;">CEO_METRICS</div>
-            
-            <div class="stat-card">
-                <div class="stat-label">WIN RATE</div>
-                <div id="win-rate" class="stat-val">--%</div>
-            </div>
-            
-            <div class="stat-card">
-                <div class="stat-label">EXPECTANCY (R)</div>
-                <div id="expectancy" class="stat-val">0.00</div>
-            </div>
-
-            <div style="margin-top: 25px;">
-                <div class="stat-label">EQUITY_TRAJECTORY</div>
-                <canvas id="equity-chart" height="130"></canvas>
-            </div>
-        </aside>
-
-        <main class="panel terminal">
-            <div id="tv-mount">
-                <script type="text/javascript" src="https://s3.tradingview.com/tv.js"></script>
-                <script type="text/javascript">
-                new TradingView.widget({
-                    "autosize": true, "symbol": "FX:XAUUSD", "interval": "15",
-                    "timezone": "Africa/Nairobi", "theme": "dark", "style": "1",
-                    "container_id": "tv-mount", "withdateranges": true, "hide_side_toolbar": false
-                });
-                </script>
-            </div>
-        </main>
-
-        <aside class="panel">
-            <div style="font-size: 12px; color: var(--cyan); margin-bottom: 12px;">CEO_DAILY_LEDGER</div>
-            <input type="text" id="pair" class="input-field" placeholder="ASSET (e.g. XAUUSD)">
-            <select id="strategy" class="input-field">
-                <option value="SMC">SMC_LIQUIDITY</option>
-                <option value="FVG">FVG_GAP</option>
-                <option value="SCALP">GOLD_SCALPER</option>
-            </select>
-            <select id="result" class="input-field">
-                <option value="W">PROFIT (WIN)</option>
-                <option value="L">LOSS</option>
-            </select>
-            <input type="number" id="profit" class="input-field" placeholder="AMOUNT ($)">
-            <button class="btn-action" onclick="syncTrade()">POST TO CLOUD</button>
-
-            <div style="margin-top: 30px;">
-                <div style="font-size: 11px; color: var(--cyan);">CEO_LOGS</div>
-                <div id="sys-log" style="font-size: 10px; opacity: 0.5; height: 100px; overflow: hidden; line-height: 1.6;">
-                    > BLEZOFX CEO Authorized...<br>
-                    > Tracking Market Liquidity...<br>
-                    > Status: COMMAND_READY.
-                </div>
-            </div>
-        </aside>
-
-        <footer class="panel footer">
-            <div class="ticker-container">
-                <div class="tradingview-widget-container">
-                  <div class="tradingview-widget-container__widget"></div>
-                  <script type="text/javascript" src="https://s3.tradingview.com/external-embedding/embed-widget-ticker-tape.js" async>
-                  {
-                  "symbols": [
-                    {"proName": "FOREXCOM:SPX500", "title": "S&P 500"},
-                    {"proName": "FX_IDC:USDKEW", "title": "USD/KES"},
-                    {"description": "GOLD", "proName": "OANDA:XAU_USD"},
-                    {"description": "NASDAQ", "proName": "NASDAQ:IXIC"}
-                  ],
-                  "showSymbolLogo": true, "colorTheme": "dark", "isTransparent": true, "displayMode": "adaptive", "locale": "en"
-                }
-                  </script>
-                </div>
-            </div>
-            <div class="footer-info">
-                <div><span style="color:#00ff88">●</span> SYSTEM_OPTIMAL</div>
-                <div style="letter-spacing: 3px;">BLUE POOL FOREX TRADERS // CEO: BLESSING KIJANA</div>
-                <div>GITHUB_HOSTED: ACTIVE</div>
-            </div>
-        </footer>
+    <div id="auth-page" class="page active">
+        <div class="glass-card auth-form">
+            <h1 id="auth-title">Create Account</h1>
+            <p>Access the Institutional Edge</p>
+            <input type="text" id="username" placeholder="Full Name">
+            <input type="password" id="password" placeholder="Secure Password">
+            <button class="btn-action" onclick="handleAuth()">Access System</button>
+            <p style="font-size: 0.8rem; margin-top: 15px;">Note: Your data is stored locally & free.</p>
+        </div>
     </div>
 
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <div id="dashboard-page" class="page">
+        <h1>CEO Performance Terminal</h1>
+        <div class="stats">
+            <div class="stat-box"><div>Win Rate</div><div class="stat-val" id="wr">0%</div></div>
+            <div class="stat-box"><div>Profit</div><div class="stat-val" id="tp">$0.00</div></div>
+            <div class="stat-box"><div>Trades</div><div class="stat-val" id="tc">0</div></div>
+        </div>
+
+        <div class="glass-card" style="margin-top: 30px;">
+            <h3>Log Institutional Position</h3>
+            <div style="display: flex; gap: 10px;">
+                <input type="text" id="pair" placeholder="Asset (XAUUSD)">
+                <input type="number" id="amt" placeholder="Profit/Loss">
+                <button onclick="addTrade()" class="btn-action" style="width: 150px;">Log Trade</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="course-page" class="page">
+        <h1>Institutional Edge Course</h1>
+        
+        <div class="glass-card">
+            <div class="course-section">
+                <h2>Module 1: Market Narrative</h2>
+                <ul>
+                    <li><strong>The Retail Liquidity:</strong> Banks move price to take your Stop Loss. Every "Support" line is a target for them.</li>
+                    <li><strong>The News Cycle:</strong> News is the "excuse" for moves that were already planned by Big Money.</li>
+                </ul>
+            </div>
+
+            <div class="course-section">
+                <h2>Module 2: Structure & CHoCH</h2>
+                <ul>
+                    <li><strong>BOS (Break of Structure):</strong> Confirms the trend is your friend.</li>
+                    <li><strong>CHoCH (Change of Character):</strong> The 1st sign that Big Money is switching directions.</li>
+                </ul>
+            </div>
+
+            <div class="course-section">
+                <h2>Module 3: Order Blocks & FVG</h2>
+                <ul>
+                    <li><strong>The Order Block:</strong> The last candle before a massive pump/dump. This is the footprint.</li>
+                    <li><strong>Fair Value Gaps (FVG):</strong> Imbalances where price was too fast. Price WILL return to fill these.</li>
+                </ul>
+            </div>
+
+            <div class="course-section" style="border: none;">
+                <h2>Module 4: Risk Architecture</h2>
+                <ul>
+                    <li><strong>1% Rule:</strong> Never gamble. Risk 1% to gain 3% (3:1 R:R).</li>
+                    <li><strong>Liquidity Sweeps:</strong> Wait for the "fakeout" before you enter.</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
     <script>
-        // REPLACE THIS URL WITH YOUR GOOGLE APPS SCRIPT URL
-        const DB_URL = "PASTE_YOUR_URL_HERE"; 
-
-        // 3D DESIGN (The "Very Important" Video Part)
-        const scene = new THREE.Scene();
-        const camera = new THREE.PerspectiveCamera(75, window.innerWidth/window.innerHeight, 0.1, 1000);
-        const renderer = new THREE.WebGLRenderer({ canvas: document.getElementById('bg-canvas'), alpha: true });
-        renderer.setSize(window.innerWidth, window.innerHeight);
-        const geo = new THREE.BufferGeometry();
-        const count = 2500;
-        const posArr = new Float32Array(count * 3);
-        for(let i=0; i<count*3; i++) posArr[i] = (Math.random()-0.5)*85;
-        geo.setAttribute('position', new THREE.BufferAttribute(posArr, 3));
-        const stars = new THREE.Points(geo, new THREE.PointsMaterial({color: 0x00d4ff, size: 0.04}));
-        scene.add(stars);
-        camera.position.z = 22;
-
-        function animate() {
-            requestAnimationFrame(animate);
-            stars.rotation.y += 0.0006;
-            renderer.render(scene, camera);
-        }
-        animate();
-
-        // DATA SYNC
-        async function syncTrade() {
-            const data = {
-                pair: document.getElementById('pair').value,
-                strategy: document.getElementById('strategy').value,
-                result: document.getElementById('result').value,
-                profit: parseFloat(document.getElementById('profit').value)
-            };
-            await fetch(DB_URL, { method: 'POST', mode: 'no-cors', body: JSON.stringify(data) });
-            alert("CEO Log Successful.");
-            setTimeout(loadStats, 1000);
+        // --- SYSTEM ENGINE ---
+        function showPage(id) {
+            if(!localStorage.getItem('bp_user') && id !== 'auth-page') {
+                alert("Unauthorized. Please create an account first.");
+                return;
+            }
+            document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+            document.getElementById(id).classList.add('active');
+            if(id === 'dashboard-page') loadStats();
         }
 
-        async function loadStats() {
-            try {
-                const response = await fetch(DB_URL);
-                const trades = (await response.json()).slice(1);
-                let wins = 0, totalP = 0, pts = [0];
-                trades.forEach(t => {
-                    let p = parseFloat(t[3]); totalP += p;
-                    if(t[2] === "W") wins++;
-                    pts.push(totalP);
-                });
-                document.getElementById('win-rate').innerText = ((wins/trades.length)*100).toFixed(1) + "%";
-                document.getElementById('expectancy').innerText = (totalP/trades.length).toFixed(2);
-                drawCurve(pts);
-            } catch(e) {}
+        function handleAuth() {
+            const u = document.getElementById('username').value;
+            const p = document.getElementById('password').value;
+            if(!u || !p) return alert("Credentials Required.");
+            
+            localStorage.setItem('bp_user', u);
+            showPage('dashboard-page');
         }
 
-        function drawCurve(points) {
-            const c = document.getElementById('equity-chart');
-            const ctx = c.getContext('2d');
-            ctx.clearRect(0,0,c.width,c.height);
-            ctx.strokeStyle = '#00d4ff'; ctx.lineWidth = 2;
-            ctx.beginPath(); ctx.moveTo(0, 100);
-            const step = c.width / (points.length - 1);
-            points.forEach((p, i) => ctx.lineTo(i * step, 80 - (p / 20)));
-            ctx.stroke();
+        function logout() {
+            localStorage.removeItem('bp_user');
+            location.reload();
         }
 
-        setInterval(() => { document.getElementById('clock').innerText = new Date().toLocaleTimeString(); }, 1000);
-        window.onload = loadStats;
+        function addTrade() {
+            const p = document.getElementById('pair').value;
+            const a = document.getElementById('amt').value;
+            if(!p || !a) return alert("Enter Trade Data.");
+
+            let trades = JSON.parse(localStorage.getItem('bp_trades') || "[]");
+            trades.push({p, a: parseFloat(a)});
+            localStorage.setItem('bp_trades', JSON.stringify(trades));
+            
+            document.getElementById('pair').value = "";
+            document.getElementById('amt').value = "";
+            loadStats();
+        }
+
+        function loadStats() {
+            const trades = JSON.parse(localStorage.getItem('bp_trades') || "[]");
+            let total = 0, wins = 0;
+            trades.forEach(t => {
+                total += t.a;
+                if(t.a > 0) wins++;
+            });
+            document.getElementById('tp').innerText = "$" + total.toLocaleString();
+            document.getElementById('tc').innerText = trades.length;
+            document.getElementById('wr').innerText = trades.length > 0 ? Math.round((wins/trades.length)*100) + "%" : "0%";
+        }
+
+        // Initialize state
+        window.onload = () => {
+            if(localStorage.getItem('bp_user')) {
+                showPage('dashboard-page');
+            }
+        };
     </script>
 </body>
 </html>
