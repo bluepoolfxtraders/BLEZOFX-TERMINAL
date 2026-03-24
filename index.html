@@ -1,246 +1,302 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Blue Pool Forex Traders | CEO Terminal</title>
-    <style>
-        :root {
-            --primary: #00d4ff;
-            --bg: #010409;
-            --card: rgba(13, 17, 23, 0.9);
-            --border: #30363d;
-            --text: #e6edf3;
-            --accent: #1f6feb;
-        }
+<meta charset="UTF-8">
+<title>Blue Pool FX Terminal</title>
 
-        body {
-            background-color: var(--bg);
-            color: var(--text);
-            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
-            margin: 0;
-            overflow-x: hidden;
-            line-height: 1.6;
-        }
+<style>
+body {
+    margin:0;
+    font-family:Segoe UI;
+    background:#010409;
+    color:#e6edf3;
+    display:flex;
+}
 
-        /* --- THE VIDEO AESTHETIC (Cyber Grid) --- */
-        .grid-overlay {
-            position: fixed;
-            top: 0; left: 0; width: 100%; height: 100%;
-            background-image: linear-gradient(var(--border) 1px, transparent 1px), linear-gradient(90deg, var(--border) 1px, transparent 1px);
-            background-size: 50px 50px;
-            z-index: -1;
-            opacity: 0.1;
-        }
+/* SIDEBAR */
+.sidebar {
+    width:230px;
+    background:#0d1117;
+    height:100vh;
+    padding:10px;
+    overflow-y:auto;
+}
 
-        /* --- NAVIGATION --- */
-        nav {
-            background: var(--card);
-            border-bottom: 1px solid var(--border);
-            padding: 15px 5%;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            position: sticky;
-            top: 0; z-index: 100;
-            backdrop-filter: blur(10px);
-        }
+.sidebar h2 { color:#00d4ff; }
 
-        .logo { font-size: 1.5rem; font-weight: 800; color: var(--primary); text-transform: uppercase; letter-spacing: 2px; }
-        
-        .nav-btns button {
-            background: transparent;
-            border: 1px solid var(--primary);
-            color: var(--primary);
-            padding: 8px 15px;
-            border-radius: 5px;
-            cursor: pointer;
-            font-weight: bold;
-            margin-left: 10px;
-        }
+.sidebar button {
+    width:100%;
+    padding:10px;
+    margin:4px 0;
+    background:none;
+    border:none;
+    color:white;
+    text-align:left;
+    cursor:pointer;
+}
 
-        /* --- CONTAINERS --- */
-        .page { display: none; padding: 40px 5%; max-width: 1200px; margin: auto; animation: slideUp 0.4s ease; }
-        .active { display: block; }
+.sidebar button:hover { background:#161b22; }
 
-        @keyframes slideUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+/* MAIN */
+.main {
+    flex:1;
+    display:flex;
+    flex-direction:column;
+}
 
-        .glass-card {
-            background: var(--card);
-            border: 1px solid var(--border);
-            border-radius: 15px;
-            padding: 30px;
-            margin-bottom: 20px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
-        }
+.topbar {
+    padding:10px;
+    border-bottom:1px solid #30363d;
+}
 
-        /* --- FORMS --- */
-        .auth-form { max-width: 400px; margin: 100px auto; text-align: center; }
-        input {
-            width: 100%; padding: 12px; margin: 10px 0;
-            background: #0d1117; border: 1px solid var(--border);
-            color: white; border-radius: 6px; box-sizing: border-box;
-        }
-        input:focus { border-color: var(--primary); outline: none; }
+/* PANEL */
+.panel {
+    flex:1;
+    padding:10px;
+    overflow:auto;
+}
 
-        .btn-action {
-            width: 100%; padding: 14px; background: var(--primary);
-            color: #010409; border: none; border-radius: 6px;
-            font-weight: 800; cursor: pointer; text-transform: uppercase;
-        }
+/* INPUT */
+input, textarea {
+    width:100%;
+    padding:10px;
+    margin:5px 0;
+    background:#161b22;
+    border:none;
+    color:white;
+}
 
-        /* --- DASHBOARD METRICS --- */
-        .stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 20px; }
-        .stat-box { background: #161b22; padding: 20px; border-radius: 10px; border-left: 4px solid var(--primary); text-align: center; }
-        .stat-val { font-size: 2rem; font-weight: bold; color: var(--primary); }
+/* BUTTON */
+.btn {
+    background:#00d4ff;
+    border:none;
+    padding:10px;
+    width:100%;
+    font-weight:bold;
+    cursor:pointer;
+}
 
-        /* --- COURSE CONTENT --- */
-        .course-section { margin-bottom: 40px; border-bottom: 1px solid var(--border); padding-bottom: 20px; }
-        .course-section h2 { color: var(--primary); text-transform: uppercase; }
-        .course-section ul { list-style: none; padding: 0; }
-        .course-section li { margin: 10px 0; padding-left: 20px; border-left: 2px solid var(--accent); }
+/* CHAT */
+.chat-box {
+    height:200px;
+    overflow-y:auto;
+    border:1px solid #30363d;
+    padding:10px;
+}
 
-    </style>
+/* LOGIN */
+.login {
+    max-width:400px;
+    margin:100px auto;
+}
+
+/* MOBILE */
+@media(max-width:768px){
+.sidebar { width:70px; }
+.sidebar button { font-size:10px; }
+}
+</style>
 </head>
+
 <body>
 
-    <div class="grid-overlay"></div>
+<div class="sidebar">
+<h2>BP FX</h2>
 
-    <nav>
-        <div class="logo">BLUE POOL FX</div>
-        <div class="nav-btns" id="nav-links">
-            <button onclick="showPage('course-page')">Lessons</button>
-            <button onclick="showPage('dashboard-page')">Dashboard</button>
-            <button onclick="logout()" style="border-color: #f85149; color: #f85149;">Logout</button>
-        </div>
-    </nav>
+<button onclick="loadPanel('dashboard')">📊</button>
+<button onclick="loadPanel('chart')">📈</button>
+<button onclick="loadPanel('chat')">💬</button>
+<button onclick="loadPanel('calculator')">🧮</button>
+<button onclick="loadPanel('calendar')">📅</button>
+<button onclick="loadPanel('investing')">🌍</button>
+<button onclick="loadPanel('notebook')">🗒</button>
+<button onclick="loadPanel('journal')">📓</button>
+<button onclick="loadPanel('lessons')">📚</button>
+<button onclick="logout()">🚪</button>
 
-    <div id="auth-page" class="page active">
-        <div class="glass-card auth-form">
-            <h1 id="auth-title">Create Account</h1>
-            <p>Access the Institutional Edge</p>
-            <input type="text" id="username" placeholder="Full Name">
-            <input type="password" id="password" placeholder="Secure Password">
-            <button class="btn-action" onclick="handleAuth()">Access System</button>
-            <p style="font-size: 0.8rem; margin-top: 15px;">Note: Your data is stored locally & free.</p>
-        </div>
-    </div>
+</div>
 
-    <div id="dashboard-page" class="page">
-        <h1>CEO Performance Terminal</h1>
-        <div class="stats">
-            <div class="stat-box"><div>Win Rate</div><div class="stat-val" id="wr">0%</div></div>
-            <div class="stat-box"><div>Profit</div><div class="stat-val" id="tp">$0.00</div></div>
-            <div class="stat-box"><div>Trades</div><div class="stat-val" id="tc">0</div></div>
-        </div>
+<div class="main">
 
-        <div class="glass-card" style="margin-top: 30px;">
-            <h3>Log Institutional Position</h3>
-            <div style="display: flex; gap: 10px;">
-                <input type="text" id="pair" placeholder="Asset (XAUUSD)">
-                <input type="number" id="amt" placeholder="Profit/Loss">
-                <button onclick="addTrade()" class="btn-action" style="width: 150px;">Log Trade</button>
-            </div>
-        </div>
-    </div>
+<div class="topbar">
+<h3>Blue Pool FX Terminal</h3>
+</div>
 
-    <div id="course-page" class="page">
-        <h1>Institutional Edge Course</h1>
-        
-        <div class="glass-card">
-            <div class="course-section">
-                <h2>Module 1: Market Narrative</h2>
-                <ul>
-                    <li><strong>The Retail Liquidity:</strong> Banks move price to take your Stop Loss. Every "Support" line is a target for them.</li>
-                    <li><strong>The News Cycle:</strong> News is the "excuse" for moves that were already planned by Big Money.</li>
-                </ul>
-            </div>
+<div class="panel" id="panel"></div>
 
-            <div class="course-section">
-                <h2>Module 2: Structure & CHoCH</h2>
-                <ul>
-                    <li><strong>BOS (Break of Structure):</strong> Confirms the trend is your friend.</li>
-                    <li><strong>CHoCH (Change of Character):</strong> The 1st sign that Big Money is switching directions.</li>
-                </ul>
-            </div>
+</div>
 
-            <div class="course-section">
-                <h2>Module 3: Order Blocks & FVG</h2>
-                <ul>
-                    <li><strong>The Order Block:</strong> The last candle before a massive pump/dump. This is the footprint.</li>
-                    <li><strong>Fair Value Gaps (FVG):</strong> Imbalances where price was too fast. Price WILL return to fill these.</li>
-                </ul>
-            </div>
+<script>
 
-            <div class="course-section" style="border: none;">
-                <h2>Module 4: Risk Architecture</h2>
-                <ul>
-                    <li><strong>1% Rule:</strong> Never gamble. Risk 1% to gain 3% (3:1 R:R).</li>
-                    <li><strong>Liquidity Sweeps:</strong> Wait for the "fakeout" before you enter.</li>
-                </ul>
-            </div>
-        </div>
-    </div>
+// LOGIN SYSTEM
+if(!localStorage.getItem("user")){
+document.body.innerHTML = `
+<div class="login">
+<h2>Login / Sign Up</h2>
+<input id="u" placeholder="Username">
+<input id="p" type="password" placeholder="Password">
+<button onclick="login()">Enter</button>
+</div>
+`;
+}
 
-    <script>
-        // --- SYSTEM ENGINE ---
-        function showPage(id) {
-            if(!localStorage.getItem('bp_user') && id !== 'auth-page') {
-                alert("Unauthorized. Please create an account first.");
-                return;
-            }
-            document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
-            document.getElementById(id).classList.add('active');
-            if(id === 'dashboard-page') loadStats();
-        }
+function login(){
+let u=document.getElementById("u").value;
+let p=document.getElementById("p").value;
 
-        function handleAuth() {
-            const u = document.getElementById('username').value;
-            const p = document.getElementById('password').value;
-            if(!u || !p) return alert("Credentials Required.");
-            
-            localStorage.setItem('bp_user', u);
-            showPage('dashboard-page');
-        }
+if(!u || !p) return alert("Enter details");
 
-        function logout() {
-            localStorage.removeItem('bp_user');
-            location.reload();
-        }
+localStorage.setItem("user", JSON.stringify({u,p}));
+location.reload();
+}
 
-        function addTrade() {
-            const p = document.getElementById('pair').value;
-            const a = document.getElementById('amt').value;
-            if(!p || !a) return alert("Enter Trade Data.");
+// PANEL LOADER
+function loadPanel(type){
 
-            let trades = JSON.parse(localStorage.getItem('bp_trades') || "[]");
-            trades.push({p, a: parseFloat(a)});
-            localStorage.setItem('bp_trades', JSON.stringify(trades));
-            
-            document.getElementById('pair').value = "";
-            document.getElementById('amt').value = "";
-            loadStats();
-        }
+if(type==="dashboard"){
+panel.innerHTML = `
+<h2>Dashboard</h2>
+<p>Profit: <span id="profit">0</span></p>
+<p>Trades: <span id="trades">0</span></p>
+<p>Win Rate: <span id="winrate">0%</span></p>
+`;
+loadStats();
+}
 
-        function loadStats() {
-            const trades = JSON.parse(localStorage.getItem('bp_trades') || "[]");
-            let total = 0, wins = 0;
-            trades.forEach(t => {
-                total += t.a;
-                if(t.a > 0) wins++;
-            });
-            document.getElementById('tp').innerText = "$" + total.toLocaleString();
-            document.getElementById('tc').innerText = trades.length;
-            document.getElementById('wr').innerText = trades.length > 0 ? Math.round((wins/trades.length)*100) + "%" : "0%";
-        }
+if(type==="chart"){
+panel.innerHTML = `
+<iframe src="https://www.tradingview.com/widgetembed/?symbol=FX:XAUUSD&theme=dark"
+style="width:100%;height:400px;border:none;"></iframe>
+`;
+}
 
-        // Initialize state
-        window.onload = () => {
-            if(localStorage.getItem('bp_user')) {
-                showPage('dashboard-page');
-            }
-        };
-    </script>
+if(type==="calculator"){
+panel.innerHTML = `
+<h2>Forex Calculator</h2>
+<button class="btn" onclick="window.open('https://www.myfxbook.com/forex-calculators')">
+Open Calculator
+</button>
+`;
+}
+
+if(type==="calendar"){
+panel.innerHTML = `
+<h2>Forex Calendar</h2>
+<button class="btn" onclick="window.open('https://www.forexfactory.com/calendar')">
+Open Forex Factory
+</button>
+`;
+}
+
+if(type==="investing"){
+panel.innerHTML = `
+<h2>Market Tools</h2>
+<button class="btn" onclick="window.open('https://www.investing.com')">
+Open Investing
+</button>
+`;
+}
+
+if(type==="notebook"){
+panel.innerHTML = `
+<h2>Notebook</h2>
+<textarea id="notes"></textarea>
+<button class="btn" onclick="saveNotes()">Save Notes</button>
+`;
+loadNotes();
+}
+
+if(type==="chat"){
+panel.innerHTML = `
+<h2>Community Chat (Local)</h2>
+<div class="chat-box" id="chatBox"></div>
+<input id="msg">
+<button class="btn" onclick="sendMsg()">Send</button>
+`;
+loadChat();
+}
+
+if(type==="journal"){
+panel.innerHTML = `
+<h2>Journal</h2>
+<input id="amount" placeholder="Profit / Loss">
+<button class="btn" onclick="addTrade()">Add Trade</button>
+<div id="journal"></div>
+`;
+loadJournal();
+}
+
+if(type==="lessons"){
+panel.innerHTML = `
+<h2>Forex Course</h2>
+<p>Full beginner to advanced content.</p>
+
+<h3>Premium</h3>
+<button class="btn" onclick="window.open('https://payhip.com/b/nwOL4')">
+Unlock Premium
+</button>
+`;
+}
+
+}
+
+// TRADES
+function addTrade(){
+let trades=JSON.parse(localStorage.getItem("trades")||"[]");
+trades.push(parseFloat(amount.value));
+localStorage.setItem("trades", JSON.stringify(trades));
+loadStats();
+loadJournal();
+}
+
+// STATS
+function loadStats(){
+let trades=JSON.parse(localStorage.getItem("trades")||"[]");
+let total=0,wins=0;
+trades.forEach(t=>{total+=t;if(t>0)wins++;});
+profit.innerText=total;
+document.getElementById("trades").innerText=trades.length;
+winrate.innerText=trades.length?Math.round((wins/trades.length)*100)+"%":"0%";
+}
+
+// JOURNAL
+function loadJournal(){
+let trades=JSON.parse(localStorage.getItem("trades")||"[]");
+journal.innerHTML=trades.map(t=>`<div>${t}</div>`).join("");
+}
+
+// CHAT
+function sendMsg(){
+let chat=JSON.parse(localStorage.getItem("chat")||"[]");
+chat.push(msg.value);
+localStorage.setItem("chat", JSON.stringify(chat));
+loadChat();
+}
+
+function loadChat(){
+let chat=JSON.parse(localStorage.getItem("chat")||"[]");
+chatBox.innerHTML=chat.map(m=>`<div>${m}</div>`).join("");
+}
+
+// NOTES
+function saveNotes(){
+localStorage.setItem("notes", notes.value);
+}
+
+function loadNotes(){
+notes.value = localStorage.getItem("notes") || "";
+}
+
+// LOGOUT
+function logout(){
+localStorage.clear();
+location.reload();
+}
+
+// INIT
+loadPanel("dashboard");
+
+</script>
+
 </body>
-</html>
-
+    </html>
