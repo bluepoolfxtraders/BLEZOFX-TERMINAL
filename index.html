@@ -1,223 +1,372 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-<meta charset="UTF-8">
-<title>Blue Pool FX Elite</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Blue Pool Forex Traders | Institutional Terminal</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        :root {
+            --bg-dark: #050505;
+            --panel-bg: #0a0a0f;
+            --accent-cyan: #00d4ff;
+            --accent-blue: #0051ff;
+            --text-main: #e0e0e0;
+            --text-dim: #888;
+            --bullish: #00ffaa;
+            --bearish: #ff3366;
+            --border-glow: rgba(0, 212, 255, 0.2);
+        }
 
-<style>
-body{margin:0;font-family:Segoe UI;background:#0b0f19;color:white;}
-.card{background:#111827;padding:15px;margin:10px;border-radius:10px;}
-.btn{padding:10px;background:#22c55e;border:none;color:white;cursor:pointer;}
-.lock{filter:blur(5px);}
-input,select{padding:10px;width:100%;margin:5px 0;background:#1f2937;color:white;border:none;}
-.sidebar{width:220px;position:fixed;height:100%;background:#020617;padding:10px;}
-.main{margin-left:220px;padding:20px;}
-</style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Inter', 'Segoe UI', sans-serif;
+        }
+
+        body {
+            background-color: var(--bg-dark);
+            color: var(--text-main);
+            overflow-x: hidden;
+        }
+
+        /* --- Background Liquidity Animation --- */
+        .liquidity-bg {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+            background: radial-gradient(circle at 50% 50%, #001a33 0%, #050505 100%);
+            opacity: 0.6;
+        }
+
+        /* --- Sidebar Navigation --- */
+        nav {
+            position: fixed;
+            left: 0;
+            top: 0;
+            height: 100vh;
+            width: 70px;
+            background: var(--panel-bg);
+            border-right: 1px solid var(--border-glow);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding-top: 20px;
+            z-index: 100;
+        }
+
+        .nav-icon {
+            color: var(--text-dim);
+            font-size: 1.5rem;
+            margin: 20px 0;
+            cursor: pointer;
+            transition: 0.3s;
+        }
+
+        .nav-icon:hover, .nav-icon.active {
+            color: var(--accent-cyan);
+            text-shadow: 0 0 10px var(--accent-cyan);
+        }
+
+        /* --- Main Content Layout --- */
+        main {
+            margin-left: 70px;
+            padding: 30px;
+        }
+
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 40px;
+            border-bottom: 1px solid var(--border-glow);
+            padding-bottom: 20px;
+        }
+
+        .brand h1 {
+            font-size: 1.8rem;
+            letter-spacing: 2px;
+            color: var(--accent-cyan);
+            text-transform: uppercase;
+        }
+
+        .market-status {
+            display: flex;
+            gap: 20px;
+        }
+
+        .status-pill {
+            background: #111;
+            padding: 5px 15px;
+            border-radius: 4px;
+            font-size: 0.8rem;
+            border: 1px solid #222;
+        }
+
+        .status-pill span { color: var(--bullish); margin-right: 5px; }
+
+        /* --- Dashboard Grid --- */
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: 2fr 1fr;
+            gap: 30px;
+        }
+
+        .card {
+            background: var(--panel-bg);
+            border: 1px solid #1a1a24;
+            border-radius: 12px;
+            padding: 25px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .card::before {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 2px;
+            background: linear-gradient(90deg, transparent, var(--accent-cyan), transparent);
+        }
+
+        h2 {
+            font-size: 1.1rem;
+            margin-bottom: 20px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: var(--accent-blue);
+        }
+
+        /* --- Position Size Calculator --- */
+        .calc-input-group {
+            margin-bottom: 15px;
+        }
+
+        .calc-input-group label {
+            display: block;
+            font-size: 0.8rem;
+            color: var(--text-dim);
+            margin-bottom: 5px;
+        }
+
+        .calc-input-group input {
+            width: 100%;
+            background: #050505;
+            border: 1px solid #222;
+            padding: 10px;
+            color: white;
+            border-radius: 5px;
+        }
+
+        .calc-result {
+            margin-top: 20px;
+            padding: 15px;
+            background: rgba(0, 212, 255, 0.05);
+            border-radius: 5px;
+            text-align: center;
+        }
+
+        .calc-result span {
+            display: block;
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: var(--accent-cyan);
+        }
+
+        /* --- Signal Terminal --- */
+        .terminal-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr 1fr;
+            padding: 12px 0;
+            border-bottom: 1px solid #111;
+            font-size: 0.9rem;
+        }
+
+        .type-buy { color: var(--bullish); font-weight: bold; }
+        .type-sell { color: var(--bearish); font-weight: bold; }
+
+        /* --- Knowledge Modules --- */
+        .module-list {
+            margin-top: 40px;
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 20px;
+        }
+
+        .module {
+            background: linear-gradient(145deg, #0a0a0f, #11111a);
+            padding: 20px;
+            border-radius: 8px;
+            border-left: 4px solid var(--accent-blue);
+        }
+
+        .module h3 { font-size: 1rem; margin-bottom: 10px; color: var(--accent-cyan); }
+        .module p { font-size: 0.85rem; color: var(--text-dim); line-height: 1.5; }
+
+        /* --- Footer --- */
+        footer {
+            margin-top: 60px;
+            padding: 30px;
+            text-align: center;
+            border-top: 1px solid #111;
+            color: var(--text-dim);
+            font-size: 0.8rem;
+        }
+
+        @media (max-width: 1000px) {
+            .dashboard-grid { grid-template-columns: 1fr; }
+            .module-list { grid-template-columns: 1fr; }
+        }
+    </style>
 </head>
-
 <body>
 
-<div id="auth"></div>
+    <div class="liquidity-bg"></div>
 
-<div id="app" style="display:none;">
+    <nav>
+        <div class="nav-icon active"><i class="fas fa-chart-line"></i></div>
+        <div class="nav-icon"><i class="fas fa-graduation-cap"></i></div>
+        <div class="nav-icon"><i class="fas fa-users"></i></div>
+        <div class="nav-icon"><i class="fas fa-shield-halved"></i></div>
+        <div class="nav-icon" style="margin-top: auto; margin-bottom: 20px;"><i class="fas fa-cog"></i></div>
+    </nav>
 
-<div class="sidebar">
-<h3>BP FX</h3>
-<button onclick="load('dashboard')">Dashboard</button>
-<button onclick="load('trade')">Trade</button>
-<button onclick="load('signals')">Signals</button>
-<button onclick="load('lessons')">Lessons</button>
-<button onclick="logout()">Logout</button>
-</div>
+    <main>
+        <header>
+            <div class="brand">
+                <h1>Blue Pool <span style="color:white">Forex</span></h1>
+            </div>
+            <div class="market-status">
+                <div class="status-pill" id="london-session"><span>●</span> London: OPEN</div>
+                <div class="status-pill" id="ny-session"><span>●</span> New York: OPEN</div>
+                <div class="status-pill" id="asia-session" style="opacity: 0.4;"><span>○</span> Tokyo: CLOSED</div>
+            </div>
+        </header>
 
-<div class="main" id="panel"></div>
+        <div class="dashboard-grid">
+            <div class="card">
+                <h2>Institutional Signal Terminal</h2>
+                <div class="terminal-header terminal-row" style="color: var(--text-dim); border-bottom: 2px solid #222;">
+                    <div>ASSET</div>
+                    <div>SETUP TYPE</div>
+                    <div>ZONE (POI)</div>
+                    <div>CONFIRMATION</div>
+                </div>
+                <div class="terminal-row">
+                    <div>EURUSD</div>
+                    <div class="type-buy">BOS + FVG</div>
+                    <div>1.08450 - 1.08500</div>
+                    <div style="color: var(--bullish)">M15 CHoCH</div>
+                </div>
+                <div class="terminal-row">
+                    <div>XAUUSD</div>
+                    <div class="type-sell">Liquidity Sweep</div>
+                    <div>2185.00 - 2190.00</div>
+                    <div style="color: #ffaa00">Pending</div>
+                </div>
+                <div class="terminal-row">
+                    <div>GBPUSD</div>
+                    <div class="type-buy">Order Block</div>
+                    <div>1.27100</div>
+                    <div style="color: var(--bullish)">Verified</div>
+                </div>
+                <div class="terminal-row">
+                    <div>USDJPY</div>
+                    <div class="type-sell">Bearish Breaker</div>
+                    <div>149.200</div>
+                    <div style="color: var(--bearish)">Stop Hunted</div>
+                </div>
 
-</div>
+                <div style="margin-top: 30px;">
+                    <h2>Active Market Structure</h2>
+                    <p style="color: var(--text-dim); font-size: 0.9rem;">
+                        Currently monitoring <strong>High-Timeframe Liquidity Pools</strong> above weekly highs. 
+                        Smart Money remains net-long on major pairs despite retail bearish sentiment. 
+                        Watch for inducement levels at the Asian session low before seeking long entries.
+                    </p>
+                </div>
+            </div>
 
-<script>
+            <div class="card">
+                <h2>Risk Manager</h2>
+                <div class="calc-input-group">
+                    <label>Account Balance ($)</label>
+                    <input type="number" id="balance" value="1000">
+                </div>
+                <div class="calc-input-group">
+                    <label>Risk Percentage (%)</label>
+                    <input type="number" id="risk" value="1">
+                </div>
+                <div class="calc-input-group">
+                    <label>Stop Loss (Pips)</label>
+                    <input type="number" id="stoploss" value="10">
+                </div>
+                <div class="calc-result">
+                    Lot Size Recommendation
+                    <span id="lot-output">0.10 Lots</span>
+                </div>
+                <p style="font-size: 0.7rem; color: var(--text-dim); margin-top: 10px; text-align: center;">
+                    Calculated for standard pairs (10 USD/Pip per Lot)
+                </p>
+            </div>
+        </div>
 
-// USERS
-let users = JSON.parse(localStorage.getItem("users")||"[]");
+        <div class="module-list">
+            <div class="module">
+                <h3>01. Market Structure</h3>
+                <p>Mapping internal vs external BOS. Mastering the art of identifying Pro-Trend vs Counter-Trend liquidity runs.</p>
+            </div>
+            <div class="module">
+                <h3>02. Supply & Demand</h3>
+                <p>Advanced POI (Point of Interest) selection. Refinement from H4 down to M1 for sniper-precision entries.</p>
+            </div>
+            <div class="module">
+                <h3>03. Liquidity Voids</h3>
+                <p>Understanding Fair Value Gaps (FVG) and the "Magnet" effect they have on price action during high volatility.</p>
+            </div>
+        </div>
+    </main>
 
-// AUTH
-function showAuth(){
-auth.innerHTML=`
-<h2>Login / Register</h2>
-<input id="u" placeholder="Username">
-<input id="p" type="password" placeholder="Password">
+    <footer>
+        <p>BLUE POOL FOREX TRADERS &copy; 2026 | SECURE TERMINAL v2.0.4</p>
+        <p style="margin-top: 5px;">Powered by Institutional Data Flows and Advanced Liquidity Algorithms.</p>
+    </footer>
 
-<select id="session">
-<option>London</option>
-<option>NewYork</option>
-<option>Tokyo</option>
-</select>
+    <script>
+        // Real-time Lot Size Calculation Logic
+        const balanceInput = document.getElementById('balance');
+        const riskInput = document.getElementById('risk');
+        const stopLossInput = document.getElementById('stoploss');
+        const lotOutput = document.getElementById('lot-output');
 
-<label><input type="checkbox" id="premium"> I am Premium</label>
+        function calculateLots() {
+            const balance = parseFloat(balanceInput.value);
+            const risk = parseFloat(riskInput.value) / 100;
+            const stopLoss = parseFloat(stopLossInput.value);
+            
+            if (balance > 0 && risk > 0 && stopLoss > 0) {
+                // Formula: (Balance * Risk%) / (StopLoss * PipValue)
+                // Assuming standard lot $10 per pip
+                const riskAmount = balance * risk;
+                const lots = riskAmount / (stopLoss * 10);
+                lotOutput.innerText = lots.toFixed(2) + " Lots";
+            } else {
+                lotOutput.innerText = "0.00 Lots";
+            }
+        }
 
-<button class="btn" onclick="register()">Register</button>
-<button class="btn" onclick="login()">Login</button>
-`;
-}
+        [balanceInput, riskInput, stopLossInput].forEach(input => {
+            input.addEventListener('input', calculateLots);
+        });
 
-function register(){
-users.push({
-u:u.value,
-p:p.value,
-session:session.value,
-premium:premium.checked
-});
-localStorage.setItem("users",JSON.stringify(users));
-alert("Registered");
-}
-
-function login(){
-let user = users.find(x=>x.u===u.value && x.p===p.value);
-if(!user) return alert("Invalid");
-
-localStorage.setItem("current",JSON.stringify(user));
-startApp();
-}
-
-// START
-function startApp(){
-auth.style.display="none";
-app.style.display="block";
-load("dashboard");
-}
-
-// LOAD PANELS
-function load(type){
-
-// DASHBOARD
-if(type==="dashboard"){
-panel.innerHTML=`
-<h2>Dashboard</h2>
-
-<div class="card">
-<h3>Live Forex</h3>
-<div id="rates"></div>
-</div>
-
-<div class="card">
-<h3>Upgrade to Premium</h3>
-<button class="btn" onclick="window.open('https://payhip.com/b/nwOL4')">
-Unlock Premium Signals
-</button>
-</div>
-`;
-getRates();
-}
-
-// TRADE
-if(type==="trade"){
-let user = JSON.parse(localStorage.getItem("current"));
-
-panel.innerHTML=`<h2>Trade Panel</h2><div id="tradeBox"></div>`;
-checkSession(user.session);
-}
-
-// SIGNALS
-if(type==="signals"){
-let user = JSON.parse(localStorage.getItem("current"));
-
-panel.innerHTML=`
-<h2>Signals</h2>
-
-<div class="card">
-<h3>Create Signal</h3>
-<input id="pair">
-<select id="dir"><option>BUY</option><option>SELL</option></select>
-<input id="entry">
-<input id="sl">
-<input id="tp">
-<button class="btn" onclick="addSignal()">Add</button>
-</div>
-
-<div class="card">
-<h3>Signals Feed</h3>
-<div id="signalsList"></div>
-</div>
-`;
-
-loadSignals(user.premium);
-}
-
-// LESSONS
-if(type==="lessons"){
-panel.innerHTML=`<h2>Lessons</h2><div class="card">Full course inside</div>`;
-}
-
-}
-
-// PREMIUM LOCK SIGNALS
-function loadSignals(isPremium){
-let s = JSON.parse(localStorage.getItem("signals")||"[]");
-
-signalsList.innerHTML = s.map(x=>`
-<div class="card ${isPremium ? '' : 'lock'}">
-${x.pair} | ${x.dir}<br>
-Entry: ${x.entry}<br>
-SL: ${x.sl} | TP: ${x.tp}
-</div>
-`).join("");
-
-if(!isPremium){
-signalsList.innerHTML += `
-<div class="card">
-<h3>🔒 Premium Required</h3>
-<button class="btn" onclick="window.open('https://payhip.com/b/nwOL4')">
-Unlock Now
-</button>
-</div>`;
-}
-}
-
-// ADD SIGNAL
-function addSignal(){
-let s = JSON.parse(localStorage.getItem("signals")||"[]");
-
-s.push({
-pair:pair.value,
-dir:dir.value,
-entry:entry.value,
-sl:sl.value,
-tp:tp.value
-});
-
-localStorage.setItem("signals",JSON.stringify(s));
-loadSignals(true);
-}
-
-// FOREX
-function getRates(){
-fetch("https://api.exchangerate-api.com/v4/latest/USD")
-.then(res=>res.json())
-.then(data=>{
-rates.innerHTML=`EUR/USD ${(1/data.rates.EUR).toFixed(4)}`;
-});
-}
-
-// SESSION LOCK
-function checkSession(selected){
-let h=new Date().getUTCHours();
-let current = h>=7&&h<16?"London":h>=13&&h<22?"NewYork":"Tokyo";
-
-tradeBox.innerHTML = current===selected
-? "✅ Trade Allowed"
-: "🚫 Locked ("+current+")";
-}
-
-// LOGOUT
-function logout(){
-localStorage.removeItem("current");
-location.reload();
-}
-
-// INIT
-if(localStorage.getItem("current")) startApp();
-else showAuth();
-
-</script>
-
+        // Initialize calc
+        calculateLots();
+    </script>
 </body>
 </html>
