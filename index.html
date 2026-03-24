@@ -3,199 +3,223 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>BLEZOFX | President Blessing Kijana</title>
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;700;900&family=Space+Mono&display=swap" rel="stylesheet">
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <title>BLEZOFX | CEO TERMINAL</title>
+    <link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&display=swap" rel="stylesheet">
     <style>
-        :root {
-            --accent-cyan: #00E5FF;
-            --accent-orange: #FF8F00;
-            --bullish: #00FF88;
-            --bearish: #FF3D00;
-            --bg-black: #050505;
-            --glass: rgba(255, 255, 255, 0.03);
+        :root { --cyan: #00d4ff; --bg: #010103; --glass: rgba(0, 212, 255, 0.06); --pink: #ff0055; }
+        body, html { margin: 0; padding: 0; width: 100%; height: 100%; background: var(--bg); color: white; font-family: 'Share Tech Mono', monospace; overflow: hidden; }
+
+        /* VIDEO SCANLINE EFFECT (IMPORTANT DESIGN PART) */
+        body::after {
+            content: " "; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.2) 50%), 
+                        linear-gradient(90deg, rgba(255, 0, 0, 0.04), rgba(0, 255, 0, 0.01), rgba(0, 0, 255, 0.04));
+            background-size: 100% 3px, 3px 100%; z-index: 1000; pointer-events: none;
         }
 
-        * { margin: 0; padding: 0; box-sizing: border-box; scroll-behavior: smooth; }
-        body { background-color: var(--bg-black); color: white; font-family: 'Poppins', sans-serif; overflow-x: hidden; }
+        #bg-canvas { position: fixed; top: 0; left: 0; z-index: 1; }
 
-        #canvas-container { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: -1; }
-
-        /* --- TOP ANALYTICS & NEWS --- */
-        .analytics-bar {
-            width: 100%; display: grid; grid-template-columns: 2fr 1fr;
-            background: #000; border-bottom: 2px solid #1a1a1a; z-index: 1000; position: relative;
+        .hud {
+            position: relative; z-index: 10; height: 100vh;
+            display: grid; grid-template-columns: 330px 1fr 330px;
+            grid-template-rows: 75px 1fr 100px; /* Adjusted for ticker */
+            gap: 15px; padding: 20px; box-sizing: border-box; pointer-events: none;
         }
 
-        .news-ticker {
-            background: #7a0000; color: white; padding: 12px; font-size: 0.7rem; font-weight: 900;
-            text-transform: uppercase; overflow: hidden; white-space: nowrap; border-right: 1px solid #333;
+        .panel { 
+            background: var(--glass); border: 1px solid rgba(0, 212, 255, 0.2); 
+            backdrop-filter: blur(25px); padding: 18px; pointer-events: auto;
+            box-shadow: 0 0 40px rgba(0,0,0,0.8);
         }
 
-        .ticker-move { display: inline-block; animation: ticker 30s linear infinite; }
+        .header { grid-column: 1 / span 3; display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid var(--cyan); }
+        .logo { font-size: 24px; letter-spacing: 5px; color: var(--cyan); text-shadow: 0 0 15px var(--cyan); }
 
-        .session-clock-mini {
-            background: #0a0a0a; display: flex; align-items: center; justify-content: center;
-            padding: 0 15px; font-family: 'Space Mono', monospace; font-size: 0.8rem; color: var(--accent-cyan);
-        }
+        /* STATS */
+        .stat-card { border-left: 3px solid var(--cyan); padding-left: 12px; margin-bottom: 12px; }
+        .stat-label { font-size: 10px; opacity: 0.6; text-transform: uppercase; }
+        .stat-val { font-size: 24px; color: var(--cyan); }
 
-        @keyframes ticker { 0% { transform: translateX(100%); } 100% { transform: translateX(-100%); } }
+        /* CENTER TERMINAL */
+        .terminal { grid-column: 2; grid-row: 2; display: flex; flex-direction: column; }
+        #tv-mount { flex-grow: 1; border: 1px solid rgba(255,255,255,0.1); }
 
-        /* --- NAVIGATION --- */
-        .tool-bar {
-            display: flex; gap: 10px; padding: 15px 40px; background: rgba(0,0,0,0.95);
-            position: sticky; top: 0; z-index: 100; border-bottom: 1px solid #222; overflow-x: auto;
-        }
+        /* LOGGING */
+        .input-field { width: 100%; background: rgba(0,0,0,0.7); border: 1px solid var(--cyan); color: white; padding: 10px; margin-bottom: 8px; font-family: inherit; font-size: 12px; box-sizing: border-box; }
+        .btn-action { width: 100%; background: transparent; border: 1px solid var(--cyan); color: var(--cyan); padding: 12px; cursor: pointer; transition: 0.3s; font-weight: bold; }
+        .btn-action:hover { background: var(--cyan); color: black; box-shadow: 0 0 20px var(--cyan); }
 
-        .tool-btn {
-            padding: 10px 18px; background: transparent; border: 1px solid var(--accent-cyan);
-            color: var(--accent-cyan); border-radius: 4px; cursor: pointer; white-space: nowrap;
-            font-weight: 900; transition: 0.3s; text-transform: uppercase; font-size: 0.65rem;
-        }
-
-        .tool-btn:hover, .tool-btn.active { background: var(--accent-cyan); color: black; box-shadow: 0 0 15px var(--accent-cyan); }
-
-        /* --- DISPLAY WINDOW --- */
-        #display-window {
-            width: 96%; margin: 20px auto; min-height: 85vh; background: rgba(0,0,0,0.98);
-            border: 1px solid #333; border-radius: 12px; padding: 30px; display: block;
-        }
-
-        .section-header { border-bottom: 1px solid #222; padding-bottom: 15px; margin-bottom: 25px; display: flex; justify-content: space-between; align-items: center; }
-
-        /* --- SMC DECISION MATRIX --- */
-        .matrix-container {
-            display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; 
-            background: var(--glass); padding: 20px; border-radius: 8px; border: 1px solid var(--accent-orange);
-        }
-
-        .check-item { display: flex; align-items: center; gap: 10px; font-size: 0.8rem; cursor: pointer; }
-
-        /* --- LAB & CHART --- */
-        .chart-frame { width: 100%; height: 70vh; border: 1px solid #444; border-radius: 8px; margin-top: 20px; }
-        iframe { width: 100%; height: 100%; border: none; }
-
-        footer { padding: 50px; background: #000; border-top: 1px solid #111; display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 40px; }
-
-        .lesson-card { background: var(--glass); border-left: 4px solid var(--accent-cyan); padding: 20px; margin-bottom: 15px; border-radius: 0 8px 8px 0; }
+        /* NEWS TICKER FOOTER */
+        .footer { grid-column: 1 / span 3; display: flex; flex-direction: column; gap: 10px; }
+        .ticker-container { width: 100%; height: 35px; overflow: hidden; background: rgba(0,0,0,0.5); border-top: 1px solid rgba(0,212,255,0.1); display: flex; align-items: center; }
+        
+        .footer-info { display: flex; justify-content: space-between; align-items: center; font-size: 11px; width: 100%; }
     </style>
 </head>
 <body>
 
-    <div id="canvas-container"></div>
+    <canvas id="bg-canvas"></canvas>
 
-    <div class="analytics-bar">
-        <div class="news-ticker">
-            <div class="ticker-move">
-                🔴 HIGH IMPACT: USD Core Retail Sales • GBP CPI y/y • EUR Main Refinancing Rate • FOMC Press Conference 🔴 [ PRESIDENT BLESSING KIJANA MONITORING DATA ] 🔴
+    <div class="hud">
+        <header class="panel header">
+            <div class="logo">BLEZOFX_CORP // CEO_ACCESS</div>
+            <div style="text-align: right;">
+                <div id="clock" style="color: var(--cyan); text-shadow: 0 0 10px var(--cyan);">00:00:00</div>
+                <div style="font-size: 10px; opacity: 0.6;">NETWORK: SECURE // VPN: ON</div>
             </div>
-        </div>
-        <div class="session-clock-mini" id="live-clock">00:00:00 UTC</div>
+        </header>
+
+        <aside class="panel">
+            <div style="font-size: 12px; color: var(--cyan); margin-bottom: 15px;">CEO_METRICS</div>
+            
+            <div class="stat-card">
+                <div class="stat-label">WIN RATE</div>
+                <div id="win-rate" class="stat-val">--%</div>
+            </div>
+            
+            <div class="stat-card">
+                <div class="stat-label">EXPECTANCY (R)</div>
+                <div id="expectancy" class="stat-val">0.00</div>
+            </div>
+
+            <div style="margin-top: 25px;">
+                <div class="stat-label">EQUITY_TRAJECTORY</div>
+                <canvas id="equity-chart" height="130"></canvas>
+            </div>
+        </aside>
+
+        <main class="panel terminal">
+            <div id="tv-mount">
+                <script type="text/javascript" src="https://s3.tradingview.com/tv.js"></script>
+                <script type="text/javascript">
+                new TradingView.widget({
+                    "autosize": true, "symbol": "FX:XAUUSD", "interval": "15",
+                    "timezone": "Africa/Nairobi", "theme": "dark", "style": "1",
+                    "container_id": "tv-mount", "withdateranges": true, "hide_side_toolbar": false
+                });
+                </script>
+            </div>
+        </main>
+
+        <aside class="panel">
+            <div style="font-size: 12px; color: var(--cyan); margin-bottom: 12px;">CEO_DAILY_LEDGER</div>
+            <input type="text" id="pair" class="input-field" placeholder="ASSET (e.g. XAUUSD)">
+            <select id="strategy" class="input-field">
+                <option value="SMC">SMC_LIQUIDITY</option>
+                <option value="FVG">FVG_GAP</option>
+                <option value="SCALP">GOLD_SCALPER</option>
+            </select>
+            <select id="result" class="input-field">
+                <option value="W">PROFIT (WIN)</option>
+                <option value="L">LOSS</option>
+            </select>
+            <input type="number" id="profit" class="input-field" placeholder="AMOUNT ($)">
+            <button class="btn-action" onclick="syncTrade()">POST TO CLOUD</button>
+
+            <div style="margin-top: 30px;">
+                <div style="font-size: 11px; color: var(--cyan);">CEO_LOGS</div>
+                <div id="sys-log" style="font-size: 10px; opacity: 0.5; height: 100px; overflow: hidden; line-height: 1.6;">
+                    > BLEZOFX CEO Authorized...<br>
+                    > Tracking Market Liquidity...<br>
+                    > Status: COMMAND_READY.
+                </div>
+            </div>
+        </aside>
+
+        <footer class="panel footer">
+            <div class="ticker-container">
+                <div class="tradingview-widget-container">
+                  <div class="tradingview-widget-container__widget"></div>
+                  <script type="text/javascript" src="https://s3.tradingview.com/external-embedding/embed-widget-ticker-tape.js" async>
+                  {
+                  "symbols": [
+                    {"proName": "FOREXCOM:SPX500", "title": "S&P 500"},
+                    {"proName": "FX_IDC:USDKEW", "title": "USD/KES"},
+                    {"description": "GOLD", "proName": "OANDA:XAU_USD"},
+                    {"description": "NASDAQ", "proName": "NASDAQ:IXIC"}
+                  ],
+                  "showSymbolLogo": true, "colorTheme": "dark", "isTransparent": true, "displayMode": "adaptive", "locale": "en"
+                }
+                  </script>
+                </div>
+            </div>
+            <div class="footer-info">
+                <div><span style="color:#00ff88">●</span> SYSTEM_OPTIMAL</div>
+                <div style="letter-spacing: 3px;">BLUE POOL FOREX TRADERS // CEO: BLESSING KIJANA</div>
+                <div>GITHUB_HOSTED: ACTIVE</div>
+            </div>
+        </footer>
     </div>
 
-    <header style="padding: 40px 0; text-align: center;">
-        <h1 style="letter-spacing: 12px; font-weight: 900; color: var(--accent-cyan);">BLUE POOL TRADERS</h1>
-        <p style="color: var(--accent-orange); font-family: 'Space Mono'; font-size: 0.8rem; margin-top: 10px;">[ PRESIDENT: BLESSING KIJANA | BLEZOFX AUTHORITY ]</p>
-    </header>
-
-    <nav class="tool-bar">
-        <button class="tool-btn active" onclick="loadTool('beginner')">Beginner Curriculum</button>
-        <button class="tool-btn" onclick="loadTool('backtest')">GoCharting Lab</button>
-        <button class="tool-btn" onclick="loadTool('matrix')">SMC Decision Matrix</button>
-        <button class="tool-btn" onclick="loadTool('vault')">PDF Library</button>
-        <button class="tool-btn" onclick="loadTool('academy')">Premium Academy</button>
-    </nav>
-
-    <div id="display-window">
-        <div id="content-area"></div>
-    </div>
-
-    <footer>
-        <div>
-            <h4 style="color: var(--accent-cyan); margin-bottom: 15px;">PRESIDENT'S OFFICE</h4>
-            <p style="color: white; font-weight: bold;">Blessing Kijana</p>
-            <p style="color: #666; font-size: 0.8rem; margin-top: 10px;">📞 0717883986 / 0768897258</p>
-            <p style="color: #666; font-size: 0.8rem;">📍 Kenya | Blue Pool Global</p>
-        </div>
-        <div>
-            <h4 style="color: var(--accent-orange); margin-bottom: 15px;">COMMUNITY HUB</h4>
-            <a href="https://wa.me/254717883986" style="color: #25D366; text-decoration:none; font-weight:bold; display:block;">WHATSAPP ADMIN</a>
-            <a href="#" style="color:#888; text-decoration:none; display:block; margin-top:10px;">Telegram: Blue Pool Signals</a>
-        </div>
-    </footer>
-
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
     <script>
-        const area = document.getElementById('content-area');
+        // REPLACE THIS URL WITH YOUR GOOGLE APPS SCRIPT URL
+        const DB_URL = "PASTE_YOUR_URL_HERE"; 
 
-        function updateClock() {
-            const now = new Date();
-            document.getElementById('live-clock').innerText = now.toUTCString().split(' ')[4] + " UTC";
-            return now.getUTCHours();
-        }
-        setInterval(updateClock, 1000);
-
-        function loadTool(id) {
-            document.querySelectorAll('.tool-btn').forEach(b => b.classList.remove('active'));
-            event.target.classList.add('active');
-            area.innerHTML = '';
-
-            if(id === 'beginner') {
-                area.innerHTML = `
-                    <div class="section-header"><h2>Beginner to Master Path</h2></div>
-                    <div class="lesson-card"><h3>1. Foundation</h3><p>Market Structure (HH/HL/LH/LL). Understanding the language of Blessing Kijana.</p></div>
-                    <div class="lesson-card"><h3>2. Institutional Footprints</h3><p>BOS vs CHOCH. Learning where the banks leave their marks.</p></div>
-                    <div class="lesson-card"><h3>3. The Hard Level</h3><p>Inducement & Liquidity. This is where you join the Premium Academy to survive.</p></div>
-                    <div style="text-align:center; margin-top:30px;"><a href="http://www.youtube.com/watch?v=Jm71EoALK8g" target="_blank" class="tool-btn" style="background:var(--accent-orange); color:black;">Watch Video Course</a></div>
-                `;
-            }
-            else if(id === 'backtest') {
-                area.innerHTML = `
-                    <div class="section-header"><h2>Backtesting Lab</h2><span>FREE BAR REPLAY VIA GOCHARTING</span></div>
-                    <div class="chart-frame"><iframe src="https://gocharting.com/terminal?symbol=FX:EURUSD"></iframe></div>
-                `;
-            }
-            else if(id === 'matrix') {
-                area.innerHTML = `
-                    <div class="section-header"><h2>SMC Decision Matrix</h2></div>
-                    <div class="matrix-container">
-                        <label class="check-item"><input type="checkbox"> Daily Bias Confirmed?</label>
-                        <label class="check-item"><input type="checkbox"> News Ticker Clear?</label>
-                        <label class="check-item"><input type="checkbox"> Liquidity Swept?</label>
-                        <label class="check-item"><input type="checkbox"> Inducement (IDM) Taken?</label>
-                        <label class="check-item"><input type="checkbox"> Displacement (BOS)?</label>
-                    </div>
-                    <h2 style="text-align:center; margin-top:30px; color:var(--accent-cyan);">VERDICT: READY FOR SCAN...</h2>
-                `;
-            }
-            else if(id === 'vault') {
-                area.innerHTML = `<h2>Blessing Kijana's PDF Vault</h2><p style="margin-top:20px;">Download your study guides below.</p>
-                <div style="margin-top:20px;"><button class="tool-btn">Download SMC Masterclass PDF</button></div>`;
-            }
-            else if(id === 'academy') {
-                area.innerHTML = `
-                    <div style="text-align:center; padding: 60px 20px;">
-                        <h1 style="color:var(--accent-orange);">BLEZOFX PREMIUM</h1>
-                        <p style="margin:20px 0; color:#888;">The "Hard Level" requires expert guidance. Join Blessing Kijana's inner circle.</p>
-                        <a href="https://payhip.com/b/nwOL4" target="_blank" style="padding:15px 40px; background:var(--accent-orange); color:black; font-weight:900; text-decoration:none; border-radius:5px;">GET FULL ACCESS</a>
-                    </div>
-                `;
-            }
-        }
-
-        // Initialize first view
-        loadTool('beginner');
-
-        // --- THREE.JS BG ---
+        // 3D DESIGN (The "Very Important" Video Part)
         const scene = new THREE.Scene();
         const camera = new THREE.PerspectiveCamera(75, window.innerWidth/window.innerHeight, 0.1, 1000);
-        const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+        const renderer = new THREE.WebGLRenderer({ canvas: document.getElementById('bg-canvas'), alpha: true });
         renderer.setSize(window.innerWidth, window.innerHeight);
-        document.getElementById('canvas-container').appendChild(renderer.domElement);
-        const starGeo = new THREE.BufferGeometry().setAttribute('position', new THREE.BufferAttribute(new Float32Array(5000 * 3).map(() => (Math.random()-0.5)*20), 3));
-        const stars = new THREE.Points(starGeo, new THREE.PointsMaterial({ size: 0.01, color: 0x00E5FF, transparent: true }));
-        scene.add(stars); camera.position.z = 1.5;
-        function animate() { requestAnimationFrame(animate); stars.rotation.y += 0.0005; renderer.render(scene, camera); }
+        const geo = new THREE.BufferGeometry();
+        const count = 2500;
+        const posArr = new Float32Array(count * 3);
+        for(let i=0; i<count*3; i++) posArr[i] = (Math.random()-0.5)*85;
+        geo.setAttribute('position', new THREE.BufferAttribute(posArr, 3));
+        const stars = new THREE.Points(geo, new THREE.PointsMaterial({color: 0x00d4ff, size: 0.04}));
+        scene.add(stars);
+        camera.position.z = 22;
+
+        function animate() {
+            requestAnimationFrame(animate);
+            stars.rotation.y += 0.0006;
+            renderer.render(scene, camera);
+        }
         animate();
+
+        // DATA SYNC
+        async function syncTrade() {
+            const data = {
+                pair: document.getElementById('pair').value,
+                strategy: document.getElementById('strategy').value,
+                result: document.getElementById('result').value,
+                profit: parseFloat(document.getElementById('profit').value)
+            };
+            await fetch(DB_URL, { method: 'POST', mode: 'no-cors', body: JSON.stringify(data) });
+            alert("CEO Log Successful.");
+            setTimeout(loadStats, 1000);
+        }
+
+        async function loadStats() {
+            try {
+                const response = await fetch(DB_URL);
+                const trades = (await response.json()).slice(1);
+                let wins = 0, totalP = 0, pts = [0];
+                trades.forEach(t => {
+                    let p = parseFloat(t[3]); totalP += p;
+                    if(t[2] === "W") wins++;
+                    pts.push(totalP);
+                });
+                document.getElementById('win-rate').innerText = ((wins/trades.length)*100).toFixed(1) + "%";
+                document.getElementById('expectancy').innerText = (totalP/trades.length).toFixed(2);
+                drawCurve(pts);
+            } catch(e) {}
+        }
+
+        function drawCurve(points) {
+            const c = document.getElementById('equity-chart');
+            const ctx = c.getContext('2d');
+            ctx.clearRect(0,0,c.width,c.height);
+            ctx.strokeStyle = '#00d4ff'; ctx.lineWidth = 2;
+            ctx.beginPath(); ctx.moveTo(0, 100);
+            const step = c.width / (points.length - 1);
+            points.forEach((p, i) => ctx.lineTo(i * step, 80 - (p / 20)));
+            ctx.stroke();
+        }
+
+        setInterval(() => { document.getElementById('clock').innerText = new Date().toLocaleTimeString(); }, 1000);
+        window.onload = loadStats;
     </script>
 </body>
-  </html>
+</html>
+
