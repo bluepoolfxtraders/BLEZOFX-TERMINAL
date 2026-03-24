@@ -2,301 +2,222 @@
 <html>
 <head>
 <meta charset="UTF-8">
-<title>Blue Pool FX Terminal</title>
+<title>Blue Pool FX Elite</title>
 
 <style>
-body {
-    margin:0;
-    font-family:Segoe UI;
-    background:#010409;
-    color:#e6edf3;
-    display:flex;
-}
-
-/* SIDEBAR */
-.sidebar {
-    width:230px;
-    background:#0d1117;
-    height:100vh;
-    padding:10px;
-    overflow-y:auto;
-}
-
-.sidebar h2 { color:#00d4ff; }
-
-.sidebar button {
-    width:100%;
-    padding:10px;
-    margin:4px 0;
-    background:none;
-    border:none;
-    color:white;
-    text-align:left;
-    cursor:pointer;
-}
-
-.sidebar button:hover { background:#161b22; }
-
-/* MAIN */
-.main {
-    flex:1;
-    display:flex;
-    flex-direction:column;
-}
-
-.topbar {
-    padding:10px;
-    border-bottom:1px solid #30363d;
-}
-
-/* PANEL */
-.panel {
-    flex:1;
-    padding:10px;
-    overflow:auto;
-}
-
-/* INPUT */
-input, textarea {
-    width:100%;
-    padding:10px;
-    margin:5px 0;
-    background:#161b22;
-    border:none;
-    color:white;
-}
-
-/* BUTTON */
-.btn {
-    background:#00d4ff;
-    border:none;
-    padding:10px;
-    width:100%;
-    font-weight:bold;
-    cursor:pointer;
-}
-
-/* CHAT */
-.chat-box {
-    height:200px;
-    overflow-y:auto;
-    border:1px solid #30363d;
-    padding:10px;
-}
-
-/* LOGIN */
-.login {
-    max-width:400px;
-    margin:100px auto;
-}
-
-/* MOBILE */
-@media(max-width:768px){
-.sidebar { width:70px; }
-.sidebar button { font-size:10px; }
-}
+body{margin:0;font-family:Segoe UI;background:#0b0f19;color:white;}
+.card{background:#111827;padding:15px;margin:10px;border-radius:10px;}
+.btn{padding:10px;background:#22c55e;border:none;color:white;cursor:pointer;}
+.lock{filter:blur(5px);}
+input,select{padding:10px;width:100%;margin:5px 0;background:#1f2937;color:white;border:none;}
+.sidebar{width:220px;position:fixed;height:100%;background:#020617;padding:10px;}
+.main{margin-left:220px;padding:20px;}
 </style>
 </head>
 
 <body>
 
+<div id="auth"></div>
+
+<div id="app" style="display:none;">
+
 <div class="sidebar">
-<h2>BP FX</h2>
-
-<button onclick="loadPanel('dashboard')">📊</button>
-<button onclick="loadPanel('chart')">📈</button>
-<button onclick="loadPanel('chat')">💬</button>
-<button onclick="loadPanel('calculator')">🧮</button>
-<button onclick="loadPanel('calendar')">📅</button>
-<button onclick="loadPanel('investing')">🌍</button>
-<button onclick="loadPanel('notebook')">🗒</button>
-<button onclick="loadPanel('journal')">📓</button>
-<button onclick="loadPanel('lessons')">📚</button>
-<button onclick="logout()">🚪</button>
-
+<h3>BP FX</h3>
+<button onclick="load('dashboard')">Dashboard</button>
+<button onclick="load('trade')">Trade</button>
+<button onclick="load('signals')">Signals</button>
+<button onclick="load('lessons')">Lessons</button>
+<button onclick="logout()">Logout</button>
 </div>
 
-<div class="main">
-
-<div class="topbar">
-<h3>Blue Pool FX Terminal</h3>
-</div>
-
-<div class="panel" id="panel"></div>
+<div class="main" id="panel"></div>
 
 </div>
 
 <script>
 
-// LOGIN SYSTEM
-if(!localStorage.getItem("user")){
-document.body.innerHTML = `
-<div class="login">
-<h2>Login / Sign Up</h2>
+// USERS
+let users = JSON.parse(localStorage.getItem("users")||"[]");
+
+// AUTH
+function showAuth(){
+auth.innerHTML=`
+<h2>Login / Register</h2>
 <input id="u" placeholder="Username">
 <input id="p" type="password" placeholder="Password">
-<button onclick="login()">Enter</button>
-</div>
+
+<select id="session">
+<option>London</option>
+<option>NewYork</option>
+<option>Tokyo</option>
+</select>
+
+<label><input type="checkbox" id="premium"> I am Premium</label>
+
+<button class="btn" onclick="register()">Register</button>
+<button class="btn" onclick="login()">Login</button>
 `;
+}
+
+function register(){
+users.push({
+u:u.value,
+p:p.value,
+session:session.value,
+premium:premium.checked
+});
+localStorage.setItem("users",JSON.stringify(users));
+alert("Registered");
 }
 
 function login(){
-let u=document.getElementById("u").value;
-let p=document.getElementById("p").value;
+let user = users.find(x=>x.u===u.value && x.p===p.value);
+if(!user) return alert("Invalid");
 
-if(!u || !p) return alert("Enter details");
-
-localStorage.setItem("user", JSON.stringify({u,p}));
-location.reload();
+localStorage.setItem("current",JSON.stringify(user));
+startApp();
 }
 
-// PANEL LOADER
-function loadPanel(type){
+// START
+function startApp(){
+auth.style.display="none";
+app.style.display="block";
+load("dashboard");
+}
 
+// LOAD PANELS
+function load(type){
+
+// DASHBOARD
 if(type==="dashboard"){
-panel.innerHTML = `
+panel.innerHTML=`
 <h2>Dashboard</h2>
-<p>Profit: <span id="profit">0</span></p>
-<p>Trades: <span id="trades">0</span></p>
-<p>Win Rate: <span id="winrate">0%</span></p>
-`;
-loadStats();
-}
 
-if(type==="chart"){
-panel.innerHTML = `
-<iframe src="https://www.tradingview.com/widgetembed/?symbol=FX:XAUUSD&theme=dark"
-style="width:100%;height:400px;border:none;"></iframe>
-`;
-}
+<div class="card">
+<h3>Live Forex</h3>
+<div id="rates"></div>
+</div>
 
-if(type==="calculator"){
-panel.innerHTML = `
-<h2>Forex Calculator</h2>
-<button class="btn" onclick="window.open('https://www.myfxbook.com/forex-calculators')">
-Open Calculator
-</button>
-`;
-}
-
-if(type==="calendar"){
-panel.innerHTML = `
-<h2>Forex Calendar</h2>
-<button class="btn" onclick="window.open('https://www.forexfactory.com/calendar')">
-Open Forex Factory
-</button>
-`;
-}
-
-if(type==="investing"){
-panel.innerHTML = `
-<h2>Market Tools</h2>
-<button class="btn" onclick="window.open('https://www.investing.com')">
-Open Investing
-</button>
-`;
-}
-
-if(type==="notebook"){
-panel.innerHTML = `
-<h2>Notebook</h2>
-<textarea id="notes"></textarea>
-<button class="btn" onclick="saveNotes()">Save Notes</button>
-`;
-loadNotes();
-}
-
-if(type==="chat"){
-panel.innerHTML = `
-<h2>Community Chat (Local)</h2>
-<div class="chat-box" id="chatBox"></div>
-<input id="msg">
-<button class="btn" onclick="sendMsg()">Send</button>
-`;
-loadChat();
-}
-
-if(type==="journal"){
-panel.innerHTML = `
-<h2>Journal</h2>
-<input id="amount" placeholder="Profit / Loss">
-<button class="btn" onclick="addTrade()">Add Trade</button>
-<div id="journal"></div>
-`;
-loadJournal();
-}
-
-if(type==="lessons"){
-panel.innerHTML = `
-<h2>Forex Course</h2>
-<p>Full beginner to advanced content.</p>
-
-<h3>Premium</h3>
+<div class="card">
+<h3>Upgrade to Premium</h3>
 <button class="btn" onclick="window.open('https://payhip.com/b/nwOL4')">
-Unlock Premium
+Unlock Premium Signals
 </button>
+</div>
 `;
+getRates();
+}
+
+// TRADE
+if(type==="trade"){
+let user = JSON.parse(localStorage.getItem("current"));
+
+panel.innerHTML=`<h2>Trade Panel</h2><div id="tradeBox"></div>`;
+checkSession(user.session);
+}
+
+// SIGNALS
+if(type==="signals"){
+let user = JSON.parse(localStorage.getItem("current"));
+
+panel.innerHTML=`
+<h2>Signals</h2>
+
+<div class="card">
+<h3>Create Signal</h3>
+<input id="pair">
+<select id="dir"><option>BUY</option><option>SELL</option></select>
+<input id="entry">
+<input id="sl">
+<input id="tp">
+<button class="btn" onclick="addSignal()">Add</button>
+</div>
+
+<div class="card">
+<h3>Signals Feed</h3>
+<div id="signalsList"></div>
+</div>
+`;
+
+loadSignals(user.premium);
+}
+
+// LESSONS
+if(type==="lessons"){
+panel.innerHTML=`<h2>Lessons</h2><div class="card">Full course inside</div>`;
 }
 
 }
 
-// TRADES
-function addTrade(){
-let trades=JSON.parse(localStorage.getItem("trades")||"[]");
-trades.push(parseFloat(amount.value));
-localStorage.setItem("trades", JSON.stringify(trades));
-loadStats();
-loadJournal();
+// PREMIUM LOCK SIGNALS
+function loadSignals(isPremium){
+let s = JSON.parse(localStorage.getItem("signals")||"[]");
+
+signalsList.innerHTML = s.map(x=>`
+<div class="card ${isPremium ? '' : 'lock'}">
+${x.pair} | ${x.dir}<br>
+Entry: ${x.entry}<br>
+SL: ${x.sl} | TP: ${x.tp}
+</div>
+`).join("");
+
+if(!isPremium){
+signalsList.innerHTML += `
+<div class="card">
+<h3>🔒 Premium Required</h3>
+<button class="btn" onclick="window.open('https://payhip.com/b/nwOL4')">
+Unlock Now
+</button>
+</div>`;
+}
 }
 
-// STATS
-function loadStats(){
-let trades=JSON.parse(localStorage.getItem("trades")||"[]");
-let total=0,wins=0;
-trades.forEach(t=>{total+=t;if(t>0)wins++;});
-profit.innerText=total;
-document.getElementById("trades").innerText=trades.length;
-winrate.innerText=trades.length?Math.round((wins/trades.length)*100)+"%":"0%";
+// ADD SIGNAL
+function addSignal(){
+let s = JSON.parse(localStorage.getItem("signals")||"[]");
+
+s.push({
+pair:pair.value,
+dir:dir.value,
+entry:entry.value,
+sl:sl.value,
+tp:tp.value
+});
+
+localStorage.setItem("signals",JSON.stringify(s));
+loadSignals(true);
 }
 
-// JOURNAL
-function loadJournal(){
-let trades=JSON.parse(localStorage.getItem("trades")||"[]");
-journal.innerHTML=trades.map(t=>`<div>${t}</div>`).join("");
+// FOREX
+function getRates(){
+fetch("https://api.exchangerate-api.com/v4/latest/USD")
+.then(res=>res.json())
+.then(data=>{
+rates.innerHTML=`EUR/USD ${(1/data.rates.EUR).toFixed(4)}`;
+});
 }
 
-// CHAT
-function sendMsg(){
-let chat=JSON.parse(localStorage.getItem("chat")||"[]");
-chat.push(msg.value);
-localStorage.setItem("chat", JSON.stringify(chat));
-loadChat();
-}
+// SESSION LOCK
+function checkSession(selected){
+let h=new Date().getUTCHours();
+let current = h>=7&&h<16?"London":h>=13&&h<22?"NewYork":"Tokyo";
 
-function loadChat(){
-let chat=JSON.parse(localStorage.getItem("chat")||"[]");
-chatBox.innerHTML=chat.map(m=>`<div>${m}</div>`).join("");
-}
-
-// NOTES
-function saveNotes(){
-localStorage.setItem("notes", notes.value);
-}
-
-function loadNotes(){
-notes.value = localStorage.getItem("notes") || "";
+tradeBox.innerHTML = current===selected
+? "✅ Trade Allowed"
+: "🚫 Locked ("+current+")";
 }
 
 // LOGOUT
 function logout(){
-localStorage.clear();
+localStorage.removeItem("current");
 location.reload();
 }
 
 // INIT
-loadPanel("dashboard");
+if(localStorage.getItem("current")) startApp();
+else showAuth();
 
 </script>
 
 </body>
-    </html>
+</html>
